@@ -2,8 +2,17 @@ window.onload=() => {
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
 
-    var canvasWidth = 800
-    var canvasHeight = 640
+    const CANVASWIDTH = 800
+    const CANVASHEIGHT = 640
+    const TILEWIDTH = 32
+    const TILEHEIGHT = 32
+
+//vairables for movement 
+var aKeyPressed = false
+var dKeyPressed = false
+var sKeyPressed = false
+var spaceKeyPressed = false
+var wKeyPressed = false
 //player object with x,y,width,height,velocities and also similar properties for its hammer
     class Player{
         constructor(){
@@ -37,32 +46,6 @@ window.onload=() => {
 var player = new Player()
 var object = new Object(100,100,100,100,false)
 
-//Keeps track of the background objects
-var lvl1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 //animates the game
     function Animate(){
         requestAnimationFrame(Animate)
@@ -70,8 +53,42 @@ var lvl1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
 Animate()
 
+//moves player left and right based off key pressed and stops them aswell
+addEventListener("keydown", keyPressed)
 
+    function keyPressed(keyDown){
+        var keyPressed = keyDown.key
+        if (keyPressed == "a"){
+            aKeyPressed = true
+        }
+        if (keyPressed == "d"){
+            dKeyPressed = true
+        }
+        if (keyPressed == "s"||"S"){
+            sKeyPressed = true
+        }
+        if (keyPressed == " "){
+            spaceKeyPressed = true
+        }
+    }
 
+addEventListener("keyup", keyReleased)
+
+    function keyReleased(keyUp){
+        var keyReleased = keyUp.key
+        if (keyReleased == "a"){
+            aKeyPressed = false
+        }
+        if (keyReleased == "d"){
+            dKeyPressed = false
+        }
+        if (keyReleased == "s"){
+            sKeyPressed = false
+        }
+        if (keyReleased == " "){
+            spaceKeyPressed = false
+        }
+    }
 
 
 
