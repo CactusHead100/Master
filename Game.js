@@ -20,7 +20,40 @@ window.onload=() => {
                 width:0,
                 height:0,
                 attackSpeed:0,
+                attackDamage:0,
             }
         }
     }
+//an object with x,y,width,height and jump through properties
+    class Object{
+        constructor(x,y,width,height,jumpThrough){
+            this.x = 0
+            this.y = 0
+            this.width = 0
+            this.height = 0
+            this.jumpThrough = false
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
