@@ -38,7 +38,17 @@ var frame = 0
                     399,16,37,26,
                     477,17,37,26,
                     555,20,37,25
-                    ]
+                    ],
+                    runLeft:[
+                        578,18,37,25,
+                        500,16,37,26,
+                        422,17,37,26,
+                        344,20,37,25,
+                        266,18,37,25,
+                        188,16,37,26,
+                        110,17,37,26,
+                        32,20,37,25
+                        ]
             }
 
             this.hammer = {
@@ -59,7 +69,7 @@ var frame = 0
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
-                ctx.drawImage(this.imageRunLeft,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
+                ctx.drawImage(this.imageRunLeft,this.animation.runLeft[frame],this.animation.runLeft[frame+1],this.animation.runLeft[frame+2],this.animation.runLeft[frame+3],this.x,this.y,78,58)
             }
     }
 //an object with x,y,width,height and jump through properties
