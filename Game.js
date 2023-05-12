@@ -13,6 +13,8 @@ var dKeyPressed = false
 var sKeyPressed = false
 var spaceKeyPressed = false
 var wKeyPressed = false
+//variable for player animaion
+var frame = 0
 //player object with x,y,width,height,velocities and also similar properties for its hammer
     class Player{
         constructor(){
@@ -20,8 +22,8 @@ var wKeyPressed = false
             this.y = 0
             this.width = 100
             this.height = 100
-            this.xVelocity = 5
-            this.yVelocity = 5
+            this.xVelocity = 7
+            this.yVelocity = 7
             this.image = new Image()
 
 //stores all info about drawing each frame of the animation
@@ -48,9 +50,15 @@ var wKeyPressed = false
             }
 
         }
+
 //controls horizontal movement of the player
             moveRight(){
                 this.x = this.x + this.xVelocity
+                ctx.drawImage(this.image,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
+            }
+            moveLeft(){
+                this.x = this.x - this.xVelocity
+                ctx.drawImage(this.image,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
             }
     }
 //an object with x,y,width,height and jump through properties
@@ -67,15 +75,28 @@ var player = new Player()
 player.image.src = "Sprites/01-King Human/Run (78x58).png"
 var object = new Object(100,100,100,100,false)
 
-//animates the game
-    function Animate(){
-        if(dKeyPressed == true){
+//changes the fps of the players animations
+setInterval(animate,100)
+function animate(){
+    frame = frame + 4
+
+    if (frame > 28 ){
+        frame = 0
+    }
+}
+//runs the lvl (or scene whatever you want to call it)
+    function RunScene(){
+        ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
+        if((dKeyPressed == true)&&(aKeyPressed == false)){
         player.moveRight()
         }
-        requestAnimationFrame(Animate)
+        if((aKeyPressed == true)&&(dKeyPressed == false)){
+            player.moveLeft()
+        }
+        requestAnimationFrame(RunScene)
     }
 
-Animate()
+RunScene()
 
 //moves player left and right based off key pressed and stops them aswell
 addEventListener("keydown", keyPressed)
