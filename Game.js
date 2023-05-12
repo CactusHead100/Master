@@ -24,9 +24,10 @@ var frame = 0
             this.height = 100
             this.xVelocity = 7
             this.yVelocity = 7
-            this.image = new Image()
 
 //stores all info about drawing each frame of the animation
+            this.imageRunRight = new Image()
+            this.imageRunLeft = new Image()
             this.animation = {
                 runRight:[
                     9,18,37,25,
@@ -54,11 +55,11 @@ var frame = 0
 //controls horizontal movement of the player
             moveRight(){
                 this.x = this.x + this.xVelocity
-                ctx.drawImage(this.image,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
+                ctx.drawImage(this.imageRunRight,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
-                ctx.drawImage(this.image,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
+                ctx.drawImage(this.imageRunLeft,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
             }
     }
 //an object with x,y,width,height and jump through properties
@@ -71,8 +72,11 @@ var frame = 0
             this.jumpThrough = jumpThrough
         }
     }
+//creates a new player and underneath has all the sources for the image files used to animate the character
 var player = new Player()
-player.image.src = "Sprites/01-King Human/Run (78x58).png"
+player.imageRunRight.src = "Sprites/01-King Human/Run_Right (78x58).png"
+player.imageRunLeft.src = "Sprites/01-King Human/Run_Left (78x58).png"
+//creates a new object
 var object = new Object(100,100,100,100,false)
 
 //changes the fps of the players animations
