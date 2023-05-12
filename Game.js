@@ -20,8 +20,23 @@ var wKeyPressed = false
             this.y = 0
             this.width = 100
             this.height = 100
-            this.xVelocity = 0
-            this.yVelocity = 0
+            this.xVelocity = 5
+            this.yVelocity = 5
+            this.image = new Image()
+
+//stores all info about drawing each frame of the animation
+            this.animation = {
+                runRight:[
+                    9,18,37,25,
+                    87,16,37,26,
+                    165,17,37,26,
+                    243,20,37,25,
+                    321,18,37,25,
+                    399,16,37,26,
+                    477,17,37,26,
+                    555,20,37,25
+                    ]
+            }
 
             this.hammer = {
                 x:0,
@@ -31,7 +46,12 @@ var wKeyPressed = false
                 attackSpeed:0,
                 attackDamage:0,
             }
+
         }
+//controls horizontal movement of the player
+            moveRight(){
+                this.x = this.x + this.xVelocity
+            }
     }
 //an object with x,y,width,height and jump through properties
     class Object{
@@ -44,10 +64,14 @@ var wKeyPressed = false
         }
     }
 var player = new Player()
+player.image.src = "Sprites/01-King Human/Run (78x58).png"
 var object = new Object(100,100,100,100,false)
 
 //animates the game
     function Animate(){
+        if(dKeyPressed == true){
+        player.moveRight()
+        }
         requestAnimationFrame(Animate)
     }
 
@@ -64,7 +88,7 @@ addEventListener("keydown", keyPressed)
         if (keyPressed == "d"){
             dKeyPressed = true
         }
-        if (keyPressed == "s"||"S"){
+        if (keyPressed == "s"){
             sKeyPressed = true
         }
         if (keyPressed == " "){
