@@ -13,8 +13,9 @@ var dKeyPressed = false
 var sKeyPressed = false
 var spaceKeyPressed = false
 var wKeyPressed = false
-//variable for player animaion
-var frame = 0
+//variables for player animaion
+var runFrame = 0
+var idleFrame = 0
 //player object with x,y,width,height,velocities and also similar properties for its hammer
     class Player{
         constructor(){
@@ -25,32 +26,6 @@ var frame = 0
             this.xVelocity = 7
             this.yVelocity = 7
 
-//stores all info about drawing each frame of the animation
-            this.imageRunRight = new Image()
-            this.imageRunLeft = new Image()
-            this.animation = {
-                runRight:[
-                    9,18,37,25,
-                    87,16,37,26,
-                    165,17,37,26,
-                    243,20,37,25,
-                    321,18,37,25,
-                    399,16,37,26,
-                    477,17,37,26,
-                    555,20,37,25
-                    ],
-                    runLeft:[
-                        578,18,37,25,
-                        500,16,37,26,
-                        422,17,37,26,
-                        344,20,37,25,
-                        266,18,37,25,
-                        188,16,37,26,
-                        110,17,37,26,
-                        32,20,37,25
-                        ]
-            }
-
             this.hammer = {
                 x:0,
                 y:0,
@@ -60,16 +35,61 @@ var frame = 0
                 attackDamage:0,
             }
 
+//stores all info about drawing each frame of the animation
+            this.lastFacing = "right"
+            this.imageRunRight = new Image()
+            this.imageRunLeft = new Image()
+            this.imageIdleRight = new Image()
+            this.imageIdleLeft = new Image()
+            this.animation = {
+                runRight: {
+                    frameCount:8,
+                    width:37,
+                    height:26,
+                },
+                runLeft: {
+                    frameCount:8,
+                    width:37,
+                    height:26,
+                },
+                idleRight: {
+                    frameCount:11,
+                    width:37,
+                    height:28,
+                },   
+                idleLeft: {
+                    frameCount:11,
+                    width:37,
+                    height:28,
+                }             
+            }
         }
-
+ 
 //controls horizontal movement of the player
             moveRight(){
                 this.x = this.x + this.xVelocity
-                ctx.drawImage(this.imageRunRight,this.animation.runRight[frame],this.animation.runRight[frame+1],this.animation.runRight[frame+2],this.animation.runRight[frame+3],this.x,this.y,78,58)
+                this.lastFacing = "right"
+                ctx.drawImage(this.imageRunRight, this.animation.runRight.width*runFrame,
+                    0, this.animation.runRight.width, this.animation.runRight.height, this.x,
+                    this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
-                ctx.drawImage(this.imageRunLeft,this.animation.runLeft[frame],this.animation.runLeft[frame+1],this.animation.runLeft[frame+2],this.animation.runLeft[frame+3],this.x,this.y,78,58)
+                this.lastFacing = "left"
+                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
+                    0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
+                    this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
+            }
+            idle(){
+                if(this.lastFacing == "left"){
+                ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.width*idleFrame,
+                    0, this.animation.idleLeft.width, this.animation.idleLeft.height, this.x,
+                    this.y, 2*this.animation.idleLeft.width,2*this.animation.idleLeft.height)
+                } else {
+                ctx.drawImage(this.imageIdleRight, this.animation.idleRight.width*idleFrame,
+                    0, this.animation.idleRight.width, this.animation.idleRight.height, this.x,
+                    this.y, 2*this.animation.idleRight.width,2*this.animation.idleRight.height)
+                }    
             }
     }
 //an object with x,y,width,height and jump through properties
@@ -84,28 +104,37 @@ var frame = 0
     }
 //creates a new player and underneath has all the sources for the image files used to animate the character
 var player = new Player()
-player.imageRunRight.src = "Sprites/01-King Human/Run_Right (78x58).png"
-player.imageRunLeft.src = "Sprites/01-King Human/Run_Left (78x58).png"
+player.imageRunRight.src = "Sprites/01-King Human/Run_Right.png"
+player.imageRunLeft.src = "Sprites/01-King Human/Run_Left.png"
+player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
+player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 //creates a new object
 var object = new Object(100,100,100,100,false)
 
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
-    frame = frame + 4
-
-    if (frame > 28 ){
-        frame = 0
+    runFrame = runFrame + 1
+    if (runFrame == 8 ){
+        runFrame = 0
+    }
+    idleFrame = idleFrame + 1
+    if (idleFrame == 11 ){
+        idleFrame = 0
     }
 }
 //runs the lvl (or scene whatever you want to call it)
     function RunScene(){
+//clears the canvas allowing animations to look clean and not have after images 
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
-        if((dKeyPressed == true)&&(aKeyPressed == false)){
+        if((dKeyPressed == true)&&
+        (aKeyPressed == false)){
         player.moveRight()
-        }
-        if((aKeyPressed == true)&&(dKeyPressed == false)){
+        }else if((aKeyPressed == true)&&
+        (dKeyPressed == false)){
             player.moveLeft()
+        } else {
+            player.idle()
         }
         requestAnimationFrame(RunScene)
     }
