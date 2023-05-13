@@ -4,7 +4,8 @@ window.onload=() => {
 
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
-    
+    const GRAVITY = 2.5
+
 //vairables for movement 
 var aKeyPressed = false
 var dKeyPressed = false
@@ -14,19 +15,16 @@ var wKeyPressed = false
 //variables for player animaion
 var runFrame = 0
 var idleFrame = 0
-//vairables for jumping
-var gravity = 9.8
-var time = 1
-var pixel = 0.1
-//player object with x,y,width,height,velocities and also similar properties for its hammer
+//player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
         constructor(){
             this.x = 0
             this.y = 0
             this.width = 100
             this.height = 100
-            this.xVelocity = 7
-            this.yVelocity = 7
+            this.xVelocity = 1
+            this.yVelocity = 29
+            this.canJump = true
 
             this.hammer = {
                 x:0,
@@ -43,6 +41,8 @@ var pixel = 0.1
             this.imageRunLeft = new Image()
             this.imageIdleRight = new Image()
             this.imageIdleLeft = new Image()
+            this.imageJumpRight = new Image()
+            this.imageJumpLeft = new Image()
             this.animation = {
                 runRight: {
                     frameCount:8,
@@ -76,15 +76,27 @@ var pixel = 0.1
                     this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
             }
             moveLeft(){
-
-                /** 
                 this.x = this.x - this.xVelocity
                 this.lastFacing = "left"
                 ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
                     0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
                     this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
-                    **/
             }
+//controls the player jumping
+            jump(){
+                if(this.canJump == true){
+                this.yVelocity = 29
+                }
+                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,58)
+            }
+            fall(){
+                this.y = this.y - this.yVelocity
+                this.yVelocity = this.yVelocity - GRAVITY
+                console.log(player.yVelocity)
+                this.yVelocity = Math.max(-25,this.yVelocity)
+                this.y = Math.min(CANVASHEIGHT-74,this.y)
+            }
+//controls what way the character should idle when not doing anything
             idle(){
                 if(this.lastFacing == "left"){
                 ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.width*idleFrame,
@@ -113,9 +125,10 @@ player.imageRunRight.src = "Sprites/01-King Human/Run_Right.png"
 player.imageRunLeft.src = "Sprites/01-King Human/Run_Left.png"
 player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
 player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
+player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
+player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 //creates a new object
 var object = new Object(100,100,100,100,false)
-
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -132,15 +145,19 @@ function animate(){
     function RunScene(){
 //clears the canvas allowing animations to look clean and not have after images 
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
-        if((dKeyPressed == true)&&
-        (aKeyPressed == false)){
+//trigers all key pressed related things 
+        if (spaceKeyPressed||wKeyPressed == true){
+            player.jump()
+            player.canJump = false
+        }
+        if((dKeyPressed == true)&&(aKeyPressed == false)){
         player.moveRight()
-        }else if((aKeyPressed == true)&&
-        (dKeyPressed == false)){
+        }else if((aKeyPressed == true)&&(dKeyPressed == false)){
             player.moveLeft()
         } else {
             player.idle()
         }
+        player.fall()
         requestAnimationFrame(RunScene)
     }
 
@@ -160,7 +177,7 @@ addEventListener("keydown", keyPressed)
         if (keyPressed == "s"){
             sKeyPressed = true
         }
-        if (keyPressed == " "){
+        if (keyPressed == " "/*||"w"||"W"*/){
             spaceKeyPressed = true
         }
     }
@@ -178,8 +195,9 @@ addEventListener("keyup", keyReleased)
         if (keyReleased == "s"){
             sKeyPressed = false
         }
-        if (keyReleased == " "){
+        if (keyReleased == " "/*||"w"||"W"*/){
             spaceKeyPressed = false
+            player.canJump = true
         }
     }
 
