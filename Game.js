@@ -10,7 +10,7 @@ window.onload=() => {
 var aKeyPressed = false
 var dKeyPressed = false
 var sKeyPressed = false
-var spaceKeyPressed = false
+var jumpKeyPressed = false
 var wKeyPressed = false
 //variables for player animaion
 var runFrame = 0
@@ -20,9 +20,10 @@ var idleFrame = 0
         constructor(){
             this.x = 0
             this.y = 0
+            this.oldY
             this.width = 100
             this.height = 100
-            this.xVelocity = 1
+            this.xVelocity = 9
             this.yVelocity = 29
             this.canJump = true
 
@@ -43,6 +44,7 @@ var idleFrame = 0
             this.imageIdleLeft = new Image()
             this.imageJumpRight = new Image()
             this.imageJumpLeft = new Image()
+            this.currentAnimation = "idle"
             this.animation = {
                 runRight: {
                     frameCount:8,
@@ -84,17 +86,21 @@ var idleFrame = 0
             }
 //controls the player jumping
             jump(){
-                if(this.canJump == true){
+                this.currentAnimation = "jump"
                 this.yVelocity = 29
-                }
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,58)
             }
             fall(){
+                this.oldY = this.y
                 this.y = this.y - this.yVelocity
                 this.yVelocity = this.yVelocity - GRAVITY
-                console.log(player.yVelocity)
+                console.log(player.y)
                 this.yVelocity = Math.max(-25,this.yVelocity)
                 this.y = Math.min(CANVASHEIGHT-74,this.y)
+                if (this.oldY == this.y){
+                    this.currentAnimation = "idle"
+                    this.canJump = true
+                }
             }
 //controls what way the character should idle when not doing anything
             idle(){
@@ -146,17 +152,19 @@ function animate(){
 //clears the canvas allowing animations to look clean and not have after images 
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
-        if (spaceKeyPressed||wKeyPressed == true){
+        if (jumpKeyPressed & player.canJump){
             player.jump()
             player.canJump = false
         }
-        if((dKeyPressed == true)&&(aKeyPressed == false)){
-        player.moveRight()
-        }else if((aKeyPressed == true)&&(dKeyPressed == false)){
-            player.moveLeft()
-        } else {
-            player.idle()
-        }
+        //if (player.currentAnimation != "jump"){
+            if((dKeyPressed == true)&&(aKeyPressed == false)){
+            player.moveRight()
+            }else if((aKeyPressed == true)&&(dKeyPressed == false)){
+                player.moveLeft()
+            } else {
+                player.idle()
+            }
+       // }
         player.fall()
         requestAnimationFrame(RunScene)
     }
@@ -168,17 +176,17 @@ addEventListener("keydown", keyPressed)
 
     function keyPressed(keyDown){
         var keyPressed = keyDown.key
-        if (keyPressed == "a"){
+        if ((keyPressed == "a")||(keyPressed == "A")){
             aKeyPressed = true
         }
-        if (keyPressed == "d"){
+        if ((keyPressed == "d")||(keyPressed == "D")){
             dKeyPressed = true
         }
-        if (keyPressed == "s"){
+        if ((keyPressed == "s")||(keyPressed == "S")){
             sKeyPressed = true
         }
-        if (keyPressed == " "/*||"w"||"W"*/){
-            spaceKeyPressed = true
+        if ((keyPressed == " ")||(keyPressed == "w")||(keyPressed == "W")){
+            jumpKeyPressed = true
         }
     }
 
@@ -186,34 +194,18 @@ addEventListener("keyup", keyReleased)
 
     function keyReleased(keyUp){
         var keyReleased = keyUp.key
-        if (keyReleased == "a"){
+        if ((keyReleased == "a")||(keyReleased == "A")){
             aKeyPressed = false
         }
-        if (keyReleased == "d"){
+        if ((keyReleased == "d")||(keyReleased == "D")){
             dKeyPressed = false
         }
-        if (keyReleased == "s"){
+        if ((keyReleased == "s")||(keyReleased == "S")){
             sKeyPressed = false
         }
-        if (keyReleased == " "/*||"w"||"W"*/){
-            spaceKeyPressed = false
-            player.canJump = true
+        if ((keyReleased == " ")||(keyReleased == "w")||(keyReleased == "W")){
+            jumpKeyPressed = false
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
