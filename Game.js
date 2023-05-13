@@ -4,9 +4,7 @@ window.onload=() => {
 
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
-    const TILEWIDTH = 32
-    const TILEHEIGHT = 32
-
+    
 //vairables for movement 
 var aKeyPressed = false
 var dKeyPressed = false
@@ -16,6 +14,10 @@ var wKeyPressed = false
 //variables for player animaion
 var runFrame = 0
 var idleFrame = 0
+//vairables for jumping
+var gravity = 9.8
+var time = 1
+var pixel = 0.1
 //player object with x,y,width,height,velocities and also similar properties for its hammer
     class Player{
         constructor(){
@@ -74,11 +76,14 @@ var idleFrame = 0
                     this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
             }
             moveLeft(){
+
+                /** 
                 this.x = this.x - this.xVelocity
                 this.lastFacing = "left"
                 ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
                     0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
                     this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
+                    **/
             }
             idle(){
                 if(this.lastFacing == "left"){
