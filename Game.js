@@ -4,7 +4,7 @@ window.onload=() => {
 
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
-    const GRAVITY = 2.5
+    const GRAVITY = 1.25
 
 //vairables for movement 
 var aKeyPressed = false
@@ -24,7 +24,7 @@ var idleFrame = 0
             this.width = 100
             this.height = 100
             this.xVelocity = 9
-            this.yVelocity = 29
+            this.yVelocity = 0
             this.canJump = true
 
             this.hammer = {
@@ -73,22 +73,22 @@ var idleFrame = 0
             moveRight(){
                 this.x = this.x + this.xVelocity
                 this.lastFacing = "right"
-                ctx.drawImage(this.imageRunRight, this.animation.runRight.width*runFrame,
-                    0, this.animation.runRight.width, this.animation.runRight.height, this.x,
-                    this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
+                if(this.currentAnimation != "jump"){
+                    this.currentAnimation = "runRight"
+                }
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
                 this.lastFacing = "left"
-                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
-                    0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
-                    this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
+                if(this.currentAnimation != "jump"){
+                    this.currentAnimation = "runLeft"
+                }
             }
 //controls the player jumping
             jump(){
+                this.yVelocity = 18
+                this.canJump = false
                 this.currentAnimation = "jump"
-                this.yVelocity = 29
-                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,58)
             }
             fall(){
                 this.oldY = this.y
@@ -98,13 +98,35 @@ var idleFrame = 0
                 this.yVelocity = Math.max(-25,this.yVelocity)
                 this.y = Math.min(CANVASHEIGHT-74,this.y)
                 if (this.oldY == this.y){
-                    this.currentAnimation = "idle"
                     this.canJump = true
                 }
             }
 //controls what way the character should idle when not doing anything
-            idle(){
-                if(this.lastFacing == "left"){
+            animate(){
+                console.log("animating")
+// jump animation
+                if (this.currentAnimation == "jump"){
+                    if(this.lastFacing == "right"){
+                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,58)
+                    } else {
+                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 74,58)
+                    }
+                console.log("jump")
+                } else if (this.currentAnimation == "runRight"){
+//run right animation
+                ctx.drawImage(this.imageRunRight, this.animation.runRight.width*runFrame,
+                    0, this.animation.runRight.width, this.animation.runRight.height, this.x,
+                    this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
+                    console.log("runR")
+                }else if (this.currentAnimation == "runLeft"){
+//run left animation
+                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
+                    0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
+                    this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
+                    console.log("runL")
+                } else if (this.currentAnimation == "idle"){
+//idle animation
+                if (this.lastFacing == "left"){
                 ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.width*idleFrame,
                     0, this.animation.idleLeft.width, this.animation.idleLeft.height, this.x,
                     this.y, 2*this.animation.idleLeft.width,2*this.animation.idleLeft.height)
@@ -112,7 +134,8 @@ var idleFrame = 0
                 ctx.drawImage(this.imageIdleRight, this.animation.idleRight.width*idleFrame,
                     0, this.animation.idleRight.width, this.animation.idleRight.height, this.x,
                     this.y, 2*this.animation.idleRight.width,2*this.animation.idleRight.height)
-                }    
+                }   
+            }
             }
     }
 //an object with x,y,width,height and jump through properties
@@ -154,17 +177,15 @@ function animate(){
 //trigers all key pressed related things 
         if (jumpKeyPressed & player.canJump){
             player.jump()
-            player.canJump = false
         }
-        //if (player.currentAnimation != "jump"){
             if((dKeyPressed == true)&&(aKeyPressed == false)){
             player.moveRight()
             }else if((aKeyPressed == true)&&(dKeyPressed == false)){
                 player.moveLeft()
-            } else {
-                player.idle()
+            }else if (player.currentAnimation != "jump"){
+                player.currentAnimation = "idle"
             }
-       // }
+        player.animate()
         player.fall()
         requestAnimationFrame(RunScene)
     }
@@ -205,6 +226,7 @@ addEventListener("keyup", keyReleased)
         }
         if ((keyReleased == " ")||(keyReleased == "w")||(keyReleased == "W")){
             jumpKeyPressed = false
+            player.currentAnimation = "idle"
         }
     }
 
