@@ -21,8 +21,8 @@ var idleFrame = 0
             this.x = 0
             this.y = 0
             this.oldY
-            this.width = 100
-            this.height = 100
+            this.width = 37
+            this.height 
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
@@ -94,46 +94,49 @@ var idleFrame = 0
                 this.oldY = this.y
                 this.y = this.y - this.yVelocity
                 this.yVelocity = this.yVelocity - GRAVITY
-                console.log(player.y)
                 this.yVelocity = Math.max(-25,this.yVelocity)
-                this.y = Math.min(CANVASHEIGHT-74,this.y)
+                this.y = Math.min(CANVASHEIGHT-this.height,this.y)
                 if (this.oldY == this.y){
                     this.canJump = true
+                    this.currentAnimation = "idle"
                 }
             }
 //controls what way the character should idle when not doing anything
             animate(){
-                console.log("animating")
 // jump animation
                 if (this.currentAnimation == "jump"){
                     if(this.lastFacing == "right"){
-                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,58)
+                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
                     } else {
-                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 74,58)
+                        this.height = 58
+                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 
+                            74,this.height)    
                     }
-                console.log("jump")
                 } else if (this.currentAnimation == "runRight"){
 //run right animation
-                ctx.drawImage(this.imageRunRight, this.animation.runRight.width*runFrame,
-                    0, this.animation.runRight.width, this.animation.runRight.height, this.x,
-                    this.y, 2*this.animation.runRight.width, 2*this.animation.runRight.height)
-                    console.log("runR")
+                this.height = 2 * this.animation.runRight.height
+                ctx.drawImage(this.imageRunRight, this.width*runFrame,
+                    0, this.width, this.height, this.x,
+                    this.y, 2*this.width, 2*this.height)
+                    
                 }else if (this.currentAnimation == "runLeft"){
 //run left animation
-                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.width*runFrame,
-                    0, this.animation.runLeft.width, this.animation.runLeft.height, this.x,
-                    this.y, 2*this.animation.runLeft.width, 2*this.animation.runLeft.height)
-                    console.log("runL")
+                this.height = 2 * this.animation.runLeft.height
+                ctx.drawImage(this.imageRunLeft, this.width*runFrame,
+                    0, this.width, this.height, this.x,
+                    this.y, 2*this.width, 2*this.height)
                 } else if (this.currentAnimation == "idle"){
 //idle animation
                 if (this.lastFacing == "left"){
-                ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.width*idleFrame,
-                    0, this.animation.idleLeft.width, this.animation.idleLeft.height, this.x,
-                    this.y, 2*this.animation.idleLeft.width,2*this.animation.idleLeft.height)
+                this.height = 2 * this.animation.idleLeft.height
+                ctx.drawImage(this.imageIdleLeft, this.width*idleFrame,
+                    0, this.width, this.height, this.x,
+                    this.y, 2*this.width,2*this.height)
                 } else {
-                ctx.drawImage(this.imageIdleRight, this.animation.idleRight.width*idleFrame,
-                    0, this.animation.idleRight.width, this.animation.idleRight.height, this.x,
-                    this.y, 2*this.animation.idleRight.width,2*this.animation.idleRight.height)
+                    this.height = 2 * this.animation.idleRight.height
+                ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
+                    0, this.width, this.height, this.x,
+                    this.y, 2*this.width,2*this.height)
                 }   
             }
             }
@@ -147,6 +150,39 @@ var idleFrame = 0
             this.height = height
             this.jumpThrough = jumpThrough
         }
+        draw(){
+            ctx.fillRect(this.x,this.y,this.width,this.height)
+        }
+        collidingWithPlayer(){
+            console.log(player.x,player.width,this.x,player.x + player.width >= this.x)
+            console.log(player.y + player.height >= this.y,
+                player.x <= this.x + this.width,
+                player.y <= this.y + this.height
+            )
+            if ((player.x + player.width >= this.x)
+            &&(player.y + player.height >= this.y)
+            &&(player.x <= this.x + this.width)
+            &&(player.y <= this.y + this.height)
+            ) {
+            var xOverlap = Math.min(player.x + player.width, this.x + this.width) - Math.max(player.x, this.x)
+            var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
+            if (xOverlap < yOverlap){
+                if (player.x >= this.x){
+                player.x = player.x + xOverlap
+                } 
+                else if (player.x <= this.x){
+                    player.x = player.x - xOverlap
+                }
+            }
+            if (yOverlap < xOverlap){
+                if (player.y >= this.y){
+                player.y = player.y + yOverlap 
+            }else if((player.y <= this.y)){
+                player.y = player.y - yOverlap
+            }
+            }
+            }
+        }   
     }
 //creates a new player and underneath has all the sources for the image files used to animate the character
 var player = new Player()
@@ -157,7 +193,7 @@ player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 //creates a new object
-var object = new Object(100,100,100,100,false)
+var object = new Object(100,550,100,100,false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -185,6 +221,8 @@ function animate(){
             }else if (player.currentAnimation != "jump"){
                 player.currentAnimation = "idle"
             }
+        object.draw()
+        object.collidingWithPlayer()
         player.animate()
         player.fall()
         requestAnimationFrame(RunScene)
@@ -226,7 +264,6 @@ addEventListener("keyup", keyReleased)
         }
         if ((keyReleased == " ")||(keyReleased == "w")||(keyReleased == "W")){
             jumpKeyPressed = false
-            player.currentAnimation = "idle"
         }
     }
 
