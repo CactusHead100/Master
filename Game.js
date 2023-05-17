@@ -4,6 +4,7 @@ window.onload=() => {
 
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
+    const SCALE = 2
     const GRAVITY = 1.25
 
 //vairables for movement 
@@ -11,7 +12,6 @@ var aKeyPressed = false
 var dKeyPressed = false
 var sKeyPressed = false
 var jumpKeyPressed = false
-var wKeyPressed = false
 //variables for player animaion
 var runFrame = 0
 var idleFrame = 0
@@ -48,22 +48,18 @@ var idleFrame = 0
             this.animation = {
                 runRight: {
                     frameCount:8,
-                    width:37,
                     height:26,
                 },
                 runLeft: {
                     frameCount:8,
-                    width:37,
                     height:26,
                 },
                 idleRight: {
                     frameCount:11,
-                    width:37,
                     height:28,
                 },   
                 idleLeft: {
                     frameCount:11,
-                    width:37,
                     height:28,
                 }             
             }
@@ -103,7 +99,7 @@ var idleFrame = 0
             }
 //controls what way the character should idle when not doing anything
             animate(){
-// jump animation
+//draws jump animation
                 if (this.currentAnimation == "jump"){
                     if(this.lastFacing == "right"){
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
@@ -113,31 +109,31 @@ var idleFrame = 0
                             74,this.height)    
                     }
                 } else if (this.currentAnimation == "runRight"){
-//run right animation
-                this.height = 2 * this.animation.runRight.height
+//draws run right animation
+                this.height = SCALE * this.animation.runRight.height
                 ctx.drawImage(this.imageRunRight, this.width*runFrame,
                     0, this.width, this.height, this.x,
-                    this.y, 2*this.width, 2*this.height)
+                    this.y, SCALE*this.width,SCALE*this.height)
                     
                 }else if (this.currentAnimation == "runLeft"){
-//run left animation
-                this.height = 2 * this.animation.runLeft.height
+//draws run left animation
+                this.height = SCALE * this.animation.runLeft.height
                 ctx.drawImage(this.imageRunLeft, this.width*runFrame,
                     0, this.width, this.height, this.x,
-                    this.y, 2*this.width, 2*this.height)
+                    this.y, SCALE*this.width, SCALE*this.height)
                 } else if (this.currentAnimation == "idle"){
-//idle animation
+//draws idle animations
                 if (this.lastFacing == "left"){
-                this.height = 2 * this.animation.idleLeft.height
+                this.height = SCALE * this.animation.idleLeft.height
                 ctx.drawImage(this.imageIdleLeft, this.width*idleFrame,
                     0, this.width, this.height, this.x,
-                    this.y, 2*this.width,2*this.height)
+                    this.y, SCALE*this.width,SCALE*this.height)
                 } else {
-                    this.height = 2 * this.animation.idleRight.height
+                    this.height = SCALE * this.animation.idleRight.height
                 ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
                     0, this.width, this.height, this.x,
-                    this.y, 2*this.width,2*this.height)
-                }   
+                    this.y, SCALE*this.width,SCALE*this.height)
+                }
             }
             }
     }
@@ -153,37 +149,75 @@ var idleFrame = 0
         draw(){
             ctx.fillRect(this.x,this.y,this.width,this.height)
         }
+//Checks and resolves collision with player 
         collidingWithPlayer(){
-            console.log(player.x,player.width,this.x,player.x + player.width >= this.x)
-            console.log(player.y + player.height >= this.y,
-                player.x <= this.x + this.width,
-                player.y <= this.y + this.height
-            )
-            if ((player.x + player.width >= this.x)
-            &&(player.y + player.height >= this.y)
-            &&(player.x <= this.x + this.width)
-            &&(player.y <= this.y + this.height)
+            if ((player.x + player.width*SCALE > this.x)
+            &&(player.y + player.height > this.y)
+            &&(player.x < this.x + this.width)
+            &&(player.y < this.y + this.height)
             ) {
-            var xOverlap = Math.min(player.x + player.width, this.x + this.width) - Math.max(player.x, this.x)
+//Caculates overlap
+            var xOverlap = Math.min(player.x + player.width*SCALE, this.x + this.width) - Math.max(player.x, this.x)
             var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
+//resolves overlap
             if (xOverlap < yOverlap){
-                if (player.x >= this.x){
+                if (player.x > this.x){
                 player.x = player.x + xOverlap
                 } 
-                else if (player.x <= this.x){
+                else if (player.x < this.x){
                     player.x = player.x - xOverlap
                 }
             }
             if (yOverlap < xOverlap){
-                if (player.y >= this.y){
-                player.y = player.y + yOverlap 
-            }else if((player.y <= this.y)){
+                if (player.y > this.y){
+                player.y = player.y + yOverlap
+// makes it so the character starts falling when hitting the bottom of a platform
+                player.yVelocity = -1    
+            }else if((player.y < this.y)){
+                player.oldY = player.y
                 player.y = player.y - yOverlap
+                player.yVelocity = 0
+                console.log(player.y,player.oldY)
+                if (player.oldY == player.y){
+                    player.canJump = true
+                    player.currentAnimation = "idle"
+                }
             }
             }
             }
         }   
     }
+
+//Bomb blows up and damages player
+/*class Bomb{
+    constructor(){
+        this.centerX = 300
+        this.centerY = 500
+        this.radius = 10
+        this.fillStyle = "black"
+        this.collidingSideX
+        this.collidingSideY
+    }
+    collidingWithPlayer(){
+        if (this.centerX < player.x){
+            this.collidingSideX = player.x
+        } else if (this.centerX > player.x + player.width*2){
+            this.collidingSideX = player.x + player.width*2
+        }
+        if(this.centerY < player.y){
+            this.collidingSideY = player.y
+        } else if (this.centerY > player.y + player.height){
+            this.collidingSideY = player.y + player.height
+        }
+        var distanceX = this.centerX - this.collidingSideX
+        var distanceY = this.centerY - this.collidingSideY
+        var distance = Math.sqrt((distanceX*distanceX)+(distanceY*distanceY))
+        if (distance <= this.radius*2){
+        } else {
+            console.log(distance)
+        }
+    }
+}*/
 //creates a new player and underneath has all the sources for the image files used to animate the character
 var player = new Player()
 player.imageRunRight.src = "Sprites/01-King Human/Run_Right.png"
@@ -193,7 +227,7 @@ player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 //creates a new object
-var object = new Object(100,550,100,100,false)
+var object = new Object(100,550,100,25,false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -225,6 +259,8 @@ function animate(){
         object.collidingWithPlayer()
         player.animate()
         player.fall()
+        ctx.fillStyle = "green"
+        ctx.strokeRect(player.x,player.y,player.width*2,player.height)
         requestAnimationFrame(RunScene)
     }
 
