@@ -259,8 +259,6 @@ function animate(){
         object.collidingWithPlayer()
         player.animate()
         player.fall()
-        ctx.fillStyle = "green"
-        ctx.strokeRect(player.x,player.y,player.width*2,player.height)
         requestAnimationFrame(RunScene)
     }
 
