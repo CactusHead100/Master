@@ -296,7 +296,7 @@ addEventListener("keyup", keyReleased)
         if ((keyReleased == "s")||(keyReleased == "S")){
             sKeyPressed = false
         }
-        if ((keyReleased == " ")||(keyReleased == "w")||(keyReleased == "W")){
+        if (keyReleased == " "){
             jumpKeyPressed = false
         }
     }
