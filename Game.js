@@ -44,6 +44,8 @@ var idleFrame = 0
             this.imageIdleLeft = new Image()
             this.imageJumpRight = new Image()
             this.imageJumpLeft = new Image()
+            this.imageAttackRight = new Image()
+            this.imageAttackLeft = new Image()
             this.currentAnimation = "idle"
             this.animation = {
                 runRight: {
@@ -198,6 +200,11 @@ var idleFrame = 0
         this.collidingSideX
         this.collidingSideY
     }
+    draw(){
+        ctx.fillStyle = this.fillStyle
+        ctx.arc(this.centerX,this.centerY, this.radius*2 , 0, 2*Math.PI) 
+        ctx.fill()
+    }
     collidingWithPlayer(){
         if (this.centerX < player.x){
             this.collidingSideX = player.x
@@ -215,6 +222,7 @@ var idleFrame = 0
         if (distance <= this.radius*2){
         } else {
             console.log(distance)
+            
         }
     }
 }*/
@@ -226,6 +234,8 @@ player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
 player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
+player.imageAttackRight = ""
+player.imageAttackLeft = ""
 //creates a new object
 var object = new Object(100,550,100,25,false)
 //changes the fps of the players animations
@@ -259,6 +269,8 @@ function animate(){
         object.collidingWithPlayer()
         player.animate()
         player.fall()
+        ctx.fillStyle = "green"
+        ctx.strokeRect(player.x,player.y,player.width*2,player.height)
         requestAnimationFrame(RunScene)
     }
 
@@ -278,7 +290,7 @@ addEventListener("keydown", keyPressed)
         if ((keyPressed == "s")||(keyPressed == "S")){
             sKeyPressed = true
         }
-        if ((keyPressed == " ")||(keyPressed == "w")||(keyPressed == "W")){
+        if (keyPressed == " "){
             jumpKeyPressed = true
         }
     }
