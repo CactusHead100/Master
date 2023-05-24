@@ -139,8 +139,8 @@ var idleFrame = 0
             }
             }
     }
-//an object with x,y,width,height and jump through properties
-    class Object{
+//a platform class with x,y,width,height and jump through properties as well as collision
+    class Platform{
         constructor(x,y,width,height,jumpThrough){
             this.x = x
             this.y = y
@@ -237,7 +237,7 @@ player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight = ""
 player.imageAttackLeft = ""
 //creates a new object
-var object = new Object(100,550,100,25,false)
+var platform = new Platform(100,550,100,25,false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -265,8 +265,8 @@ function animate(){
             }else if (player.currentAnimation != "jump"){
                 player.currentAnimation = "idle"
             }
-        object.draw()
-        object.collidingWithPlayer()
+        platform.draw()
+        platform.collidingWithPlayer()
         player.animate()
         player.fall()
         ctx.fillStyle = "green"
