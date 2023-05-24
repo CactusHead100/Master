@@ -23,6 +23,10 @@ var idleFrame = 0
             this.oldY
             this.width = 37
             this.height 
+            this.hitboxX
+            this.hitboxY
+            this.hitboxWidth = 21
+            this.hitboxHeight
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
@@ -30,7 +34,8 @@ var idleFrame = 0
             this.hammer = {
                 x:0,
                 y:0,
-                width:0,
+                width:12,
+                handleWidth:4,
                 height:0,
                 attackSpeed:0,
                 attackDamage:0,
@@ -104,11 +109,18 @@ var idleFrame = 0
 //draws jump animation
                 if (this.currentAnimation == "jump"){
                     if(this.lastFacing == "right"){
+                this.height = 58
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
+                this.hitboxX = this.x+this.hammer.width
+                this.hitboxY = this.y
+                this.hitboxHeight = 29
                     } else {
                         this.height = 58
                         ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 
-                            74,this.height)    
+                            74,this.height)   
+                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxY = this.y
+                    this.hitboxHeight = 29 
                     }
                 } else if (this.currentAnimation == "runRight"){
 //draws run right animation
@@ -116,13 +128,18 @@ var idleFrame = 0
                 ctx.drawImage(this.imageRunRight, this.width*runFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
-                    
+                    this.hitboxX = this.x+this.hammer.width
+                this.hitboxY = this.y
+                this.hitboxHeight = 29
                 }else if (this.currentAnimation == "runLeft"){
 //draws run left animation
                 this.height = SCALE * this.animation.runLeft.height
                 ctx.drawImage(this.imageRunLeft, this.width*runFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width, SCALE*this.height)
+                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxY = this.y
+                    this.hitboxHeight = 29 
                 } else if (this.currentAnimation == "idle"){
 //draws idle animations
                 if (this.lastFacing == "left"){
@@ -130,11 +147,17 @@ var idleFrame = 0
                 ctx.drawImage(this.imageIdleLeft, this.width*idleFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
+                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxY = this.y
+                    this.hitboxHeight = 29 
                 } else {
                     this.height = SCALE * this.animation.idleRight.height
                 ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
+                    this.hitboxX = this.x+this.hammer.width
+                this.hitboxY = this.y
+                this.hitboxHeight = 29
                 }
             }
             }
@@ -270,7 +293,7 @@ function animate(){
         player.animate()
         player.fall()
         ctx.fillStyle = "green"
-        ctx.strokeRect(player.x,player.y,player.width*2,player.height)
+        ctx.strokeRect(this.hitboxX,this.hitboxY,this.hitboxWidth,this.hitboxHeight)
         requestAnimationFrame(RunScene)
     }
 
