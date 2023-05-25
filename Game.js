@@ -25,7 +25,7 @@ var idleFrame = 0
             this.height 
             this.hitboxX
             this.hitboxY
-            this.hitboxWidth = 21
+            this.hitboxWidth = 21 * SCALE
             this.hitboxHeight
             this.xVelocity = 9
             this.yVelocity = 0
@@ -111,16 +111,16 @@ var idleFrame = 0
                     if(this.lastFacing == "right"){
                 this.height = 58
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
-                this.hitboxX = this.x+this.hammer.width
+                this.hitboxX = this.x + this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29
+                this.hitboxHeight = 29*SCALE
                     } else {
                         this.height = 58
                         ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 
                             74,this.height)   
-                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29 
+                    this.hitboxHeight = 29 *SCALE
                     }
                 } else if (this.currentAnimation == "runRight"){
 //draws run right animation
@@ -128,18 +128,18 @@ var idleFrame = 0
                 ctx.drawImage(this.imageRunRight, this.width*runFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.width
+                    this.hitboxX = this.x+this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29
+                this.hitboxHeight = 29*SCALE
                 }else if (this.currentAnimation == "runLeft"){
 //draws run left animation
                 this.height = SCALE * this.animation.runLeft.height
                 ctx.drawImage(this.imageRunLeft, this.width*runFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width, SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29 
+                    this.hitboxHeight = 29*SCALE
                 } else if (this.currentAnimation == "idle"){
 //draws idle animations
                 if (this.lastFacing == "left"){
@@ -147,17 +147,17 @@ var idleFrame = 0
                 ctx.drawImage(this.imageIdleLeft, this.width*idleFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.handleWidth
+                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29 
+                    this.hitboxHeight = 29*SCALE
                 } else {
                     this.height = SCALE * this.animation.idleRight.height
                 ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
                     0, this.width, this.height, this.x,
                     this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.width
+                    this.hitboxX = this.x+this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29
+                this.hitboxHeight = 29*SCALE
                 }
             }
             }
@@ -292,8 +292,8 @@ function animate(){
         platform.collidingWithPlayer()
         player.animate()
         player.fall()
-        ctx.fillStyle = "green"
-        ctx.strokeRect(this.hitboxX,this.hitboxY,this.hitboxWidth,this.hitboxHeight)
+        ctx.strokeStyle = "green"
+        ctx.strokeRect(player.hitboxX,player.hitboxY,player.hitboxWidth,player.hitboxHeight)
         requestAnimationFrame(RunScene)
     }
 
