@@ -1,6 +1,6 @@
 window.onload=() => {
-    var c = document.getElementById("canvas");
-    var ctx = c.getContext("2d");
+    var c = document.getElementById("canvas")
+    var ctx = c.getContext("2d")
 
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
@@ -15,6 +15,7 @@ var jumpKeyPressed = false
 //variables for player animaion
 var runFrame = 0
 var idleFrame = 0
+var hitboxCollision = true
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
         constructor(){
@@ -26,7 +27,7 @@ var idleFrame = 0
             this.hitboxX
             this.hitboxY
             this.hitboxWidth = 21 * SCALE
-            this.hitboxHeight
+            this.hitboxHeight = 58
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
@@ -104,7 +105,10 @@ var idleFrame = 0
                     this.currentAnimation = "idle"
                 }
             }
-//controls what way the character should idle when not doing anything
+//draws all the animations, sets the height of the player to the height of the image,
+//then draws it using the timer "animate" to change the x position of where to draw the image 
+//and with a strip of images identical in width and height it gives the player animation 
+//also sets hitbox parameters for collsision
             animate(){
 //draws jump animation
                 if (this.currentAnimation == "jump"){
@@ -113,14 +117,12 @@ var idleFrame = 0
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
                 this.hitboxX = this.x + this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29*SCALE
                     } else {
                         this.height = 58
                         ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 
                             74,this.height)   
                     this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29 *SCALE
                     }
                 } else if (this.currentAnimation == "runRight"){
 //draws run right animation
@@ -130,7 +132,6 @@ var idleFrame = 0
                     this.y, SCALE*this.width,SCALE*this.height)
                     this.hitboxX = this.x+this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29*SCALE
                 }else if (this.currentAnimation == "runLeft"){
 //draws run left animation
                 this.height = SCALE * this.animation.runLeft.height
@@ -139,7 +140,6 @@ var idleFrame = 0
                     this.y, SCALE*this.width, SCALE*this.height)
                     this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29*SCALE
                 } else if (this.currentAnimation == "idle"){
 //draws idle animations
                 if (this.lastFacing == "left"){
@@ -149,7 +149,6 @@ var idleFrame = 0
                     this.y, SCALE*this.width,SCALE*this.height)
                     this.hitboxX = this.x+this.hammer.handleWidth*SCALE
                     this.hitboxY = this.y
-                    this.hitboxHeight = 29*SCALE
                 } else {
                     this.height = SCALE * this.animation.idleRight.height
                 ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
@@ -157,7 +156,6 @@ var idleFrame = 0
                     this.y, SCALE*this.width,SCALE*this.height)
                     this.hitboxX = this.x+this.hammer.width*SCALE
                 this.hitboxY = this.y
-                this.hitboxHeight = 29*SCALE
                 }
             }
             }
@@ -176,12 +174,13 @@ var idleFrame = 0
         }
 //Checks and resolves collision with player 
         collidingWithPlayer(){
+            if (hitboxCollision == false){
             if ((player.x + player.width*SCALE > this.x)
             &&(player.y + player.height > this.y)
             &&(player.x < this.x + this.width)
             &&(player.y < this.y + this.height)
             ) {
-//Caculates overlap
+//Caculates overlap (I got these 2 lines from chat.GPT)
             var xOverlap = Math.min(player.x + player.width*SCALE, this.x + this.width) - Math.max(player.x, this.x)
             var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
 //resolves overlap
@@ -210,7 +209,45 @@ var idleFrame = 0
             }
             }
             }
-        }   
+        }else{
+            if((player.hitboxX + player.hitboxWidth >= this.x)
+            &&(player.hitboxY + player.hitboxHeight >= this.y)
+            &&(player.hitboxX <= this.x + this.width)
+            &&(player.hitboxY <= this.y + this.height)){
+                var xOverlap = Math.min(player.hitboxX + player.hitboxWidth, this.x + this.width) - Math.max(player.x,this.x)
+                var yOverlap = Math.min(player.hitboxY + player.hitboxHeight, this.y + this.height) - Math.max(player.hitboxY, this.y)
+                if (xOverlap > yOverlap){
+                    if(player.hitboxX + player.hitboxWidth > this.x + this.width){
+                        player.hitboxX = player.hitboxX + xOverlap
+                        console.log("movingRight")
+                        if(player.lastFacing == "left"){
+                            player.x = player.hitboxX - player.hammer.width
+                        }else{
+                            player.x = player.hitboxX - player.hammer.handleWidth
+                        }
+                    } else if(player.hitboxX < this.x){
+                        player.hitboxX = player.hitboxX - xOverlap
+                        console.log("movingLeft")
+                        if(player.lastFacing == "left"){
+                            player.x = player.hitboxX - player.hammer.handleWidth
+                        }else{
+                            player.x = player.hitboxX - player.hammer.width
+                        }
+                    }
+                }else if (xOverlap <= yOverlap){
+                if(player.hitboxY > this.y){
+                player.hitboxY = player.hitboxY - yOverlap
+                player.y = player.hitboxY
+                console.log("movingUp")
+                } else if(player.hitboxY + player.hitboxHeight > this.y + this.height){
+                    player.hitboxY = player.hitboxY + yOverlap
+                    player.y = player.hitboxY
+                    console.log("movingDown")
+                }
+                }
+            }
+        }
+    }   
     }
 
 //Bomb blows up and damages player
@@ -260,7 +297,7 @@ player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight = ""
 player.imageAttackLeft = ""
 //creates a new object
-var platform = new Platform(100,550,100,25,false)
+var platform = new Platform(100,550,100,100,false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -290,6 +327,7 @@ function animate(){
             }
         platform.draw()
         platform.collidingWithPlayer()
+        console.log(player.x,player.hitboxX,player.y,player.hitboxY)
         player.animate()
         player.fall()
         ctx.strokeStyle = "green"
