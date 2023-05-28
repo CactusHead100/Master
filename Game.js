@@ -22,12 +22,8 @@ var hitboxCollision = true
             this.x = 0
             this.y = 0
             this.oldY
-            this.width = 37
+            this.width = 21 * SCALE
             this.height 
-            this.hitboxX
-            this.hitboxY
-            this.hitboxWidth = 21 * SCALE
-            this.hitboxHeight = 58
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
@@ -35,8 +31,9 @@ var hitboxCollision = true
             this.hammer = {
                 x:0,
                 y:0,
-                width:12,
-                handleWidth:4,
+                headWidth:12 * SCALE,
+                handleWidth:4 * SCALE,
+                totlaWidth:16 * SCALE,
                 height:0,
                 attackSpeed:0,
                 attackDamage:0,
@@ -56,18 +53,22 @@ var hitboxCollision = true
             this.animation = {
                 runRight: {
                     frameCount:8,
+                    frameWidth:37,
                     height:26,
                 },
                 runLeft: {
                     frameCount:8,
+                    frameWidth:37,
                     height:26,
                 },
                 idleRight: {
                     frameCount:11,
+                    frameWidth:37,
                     height:28,
                 },   
                 idleLeft: {
                     frameCount:11,
+                    frameWidth:37,
                     height:28,
                 }             
             }
@@ -113,49 +114,42 @@ var hitboxCollision = true
 //draws jump animation
                 if (this.currentAnimation == "jump"){
                     if(this.lastFacing == "right"){
-                this.height = 58
-                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x, this.y, 74,this.height)
-                this.hitboxX = this.x + this.hammer.width*SCALE
-                this.hitboxY = this.y
+                this.drawHeight = 58
+                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
+                    74 ,this.height)
                     } else {
                         this.height = 58
-                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x, this.y, 
-                            74,this.height)   
-                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
-                    this.hitboxY = this.y
+                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
+                            74 ,this.height)   
                     }
                 } else if (this.currentAnimation == "runRight"){
 //draws run right animation
-                this.height = SCALE * this.animation.runRight.height
-                ctx.drawImage(this.imageRunRight, this.width*runFrame,
-                    0, this.width, this.height, this.x,
-                    this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.width*SCALE
-                this.hitboxY = this.y
+                this.height = this.animation.runRight.height * SCALE
+                ctx.drawImage(this.imageRunRight, this.animation.runRight.frameWidth * runFrame,
+                    0, this.animation.runRight.frameWidth, 
+                    this.animation.runRight.height, this.x - this.hammer.headWidth, this.y, 
+                    this.width + this.hammer.totlaWidth, this.height)
                 }else if (this.currentAnimation == "runLeft"){
 //draws run left animation
                 this.height = SCALE * this.animation.runLeft.height
-                ctx.drawImage(this.imageRunLeft, this.width*runFrame,
-                    0, this.width, this.height, this.x,
-                    this.y, SCALE*this.width, SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
-                    this.hitboxY = this.y
+                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.frameWidth * runFrame,
+                    0, this.animation.runLeft.frameWidth, 
+                    this.animation.runLeft.height, this.x - this.hammer.handleWidth,
+                    this.y, this.width + this.hammer.totlaWidth, this.height)
                 } else if (this.currentAnimation == "idle"){
 //draws idle animations
                 if (this.lastFacing == "left"){
                 this.height = SCALE * this.animation.idleLeft.height
-                ctx.drawImage(this.imageIdleLeft, this.width*idleFrame,
-                    0, this.width, this.height, this.x,
-                    this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.handleWidth*SCALE
-                    this.hitboxY = this.y
+                ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.frameWidth * idleFrame,
+                    0, this.animation.idleLeft.frameWidth, 
+                    this.animation.idleLeft.height, this.x - this.hammer.handleWidth,
+                    this.y, this.width + this.hammer.totlaWidth, this.height)
                 } else {
                     this.height = SCALE * this.animation.idleRight.height
-                ctx.drawImage(this.imageIdleRight, this.width*idleFrame,
-                    0, this.width, this.height, this.x,
-                    this.y, SCALE*this.width,SCALE*this.height)
-                    this.hitboxX = this.x+this.hammer.width*SCALE
-                this.hitboxY = this.y
+                ctx.drawImage(this.imageIdleRight, this.animation.idleLeft.frameWidth * idleFrame,
+                    0, this.animation.idleRight.frameWidth, 
+                    this.animation.idleRight.height, this.x - this.hammer.headWidth,
+                    this.y, this.width + this.hammer.totlaWidth, this.height)
                 }
             }
             }
@@ -174,14 +168,13 @@ var hitboxCollision = true
         }
 //Checks and resolves collision with player 
         collidingWithPlayer(){
-            if (hitboxCollision == false){
-            if ((player.x + player.width*SCALE > this.x)
+            if ((player.x + player.width > this.x)
             &&(player.y + player.height > this.y)
             &&(player.x < this.x + this.width)
             &&(player.y < this.y + this.height)
             ) {
 //Caculates overlap (I got these 2 lines from chat.GPT)
-            var xOverlap = Math.min(player.x + player.width*SCALE, this.x + this.width) - Math.max(player.x, this.x)
+            var xOverlap = Math.min(player.x + player.width, this.x + this.width) - Math.max(player.x, this.x)
             var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
 //resolves overlap
             if (xOverlap < yOverlap){
@@ -207,44 +200,6 @@ var hitboxCollision = true
                     player.currentAnimation = "idle"
                 }
             }
-            }
-            }
-        }else{
-            if((player.hitboxX + player.hitboxWidth >= this.x)
-            &&(player.hitboxY + player.hitboxHeight >= this.y)
-            &&(player.hitboxX <= this.x + this.width)
-            &&(player.hitboxY <= this.y + this.height)){
-                var xOverlap = Math.min(player.hitboxX + player.hitboxWidth, this.x + this.width) - Math.max(player.x,this.x)
-                var yOverlap = Math.min(player.hitboxY + player.hitboxHeight, this.y + this.height) - Math.max(player.hitboxY, this.y)
-                if (xOverlap > yOverlap){
-                    if(player.hitboxX + player.hitboxWidth > this.x + this.width){
-                        player.hitboxX = player.hitboxX + xOverlap
-                        console.log("movingRight")
-                        if(player.lastFacing == "left"){
-                            player.x = player.hitboxX - player.hammer.width
-                        }else{
-                            player.x = player.hitboxX - player.hammer.handleWidth
-                        }
-                    } else if(player.hitboxX < this.x){
-                        player.hitboxX = player.hitboxX - xOverlap
-                        console.log("movingLeft")
-                        if(player.lastFacing == "left"){
-                            player.x = player.hitboxX - player.hammer.handleWidth
-                        }else{
-                            player.x = player.hitboxX - player.hammer.width
-                        }
-                    }
-                }else if (xOverlap <= yOverlap){
-                if(player.hitboxY > this.y){
-                player.hitboxY = player.hitboxY - yOverlap
-                player.y = player.hitboxY
-                console.log("movingUp")
-                } else if(player.hitboxY + player.hitboxHeight > this.y + this.height){
-                    player.hitboxY = player.hitboxY + yOverlap
-                    player.y = player.hitboxY
-                    console.log("movingDown")
-                }
-                }
             }
         }
     }   
@@ -297,7 +252,7 @@ player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight = ""
 player.imageAttackLeft = ""
 //creates a new object
-var platform = new Platform(100,550,100,100,false)
+var platform = new Platform(100,550,100,26,false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -331,7 +286,7 @@ function animate(){
         player.animate()
         player.fall()
         ctx.strokeStyle = "green"
-        ctx.strokeRect(player.hitboxX,player.hitboxY,player.hitboxWidth,player.hitboxHeight)
+        ctx.strokeRect(player.x,player.y,player.width,player.height)
         requestAnimationFrame(RunScene)
     }
 
