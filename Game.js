@@ -12,10 +12,10 @@ var aKeyPressed = false
 var dKeyPressed = false
 var sKeyPressed = false
 var jumpKeyPressed = false
-//variables for player animaion
+//variables for animaion
 var runFrame = 0
 var idleFrame = 0
-var hitboxCollision = true
+var enemyRunFrame = 0 
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
         constructor(){
@@ -154,6 +154,34 @@ var hitboxCollision = true
             }
             }
     }
+//a enemy that walks left and right and damages player
+    class Enemy{
+        constructor(){
+            this.x = 0
+            this.y = 0 
+            this.width = 19
+            this.height = 17
+            this.turnLeft
+            this.turnRight
+            this.currentAnimation = "runRight"
+            this.lastFacing = "right"
+
+            this.imageRunRight = new Image()
+            this.imageRunLeft = new Image()
+        }
+        runRight(){
+            this.x++
+        }
+        runLeft(){
+            this.y++
+        }
+        animate(){
+            if(this.lastFacing == "right"){
+            ctx.drawImage(this.imageRunRight, this.width * enemyRunFrame, 0, 
+                this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
+            }
+        }
+    }
 //a platform class with x,y,width,height and jump through properties as well as collision
     class Platform{
         constructor(x,y,width,height,jumpThrough){
@@ -251,6 +279,9 @@ player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight = ""
 player.imageAttackLeft = ""
+//creates a new enemy
+var enemy = new Enemy()
+enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
 //creates a new object
 var platform = new Platform(100,550,100,26,false)
 //changes the fps of the players animations
@@ -264,6 +295,10 @@ function animate(){
     if (idleFrame == 11 ){
         idleFrame = 0
     }
+    enemyRunFrame = enemyRunFrame + 1
+    if (enemyRunFrame == 6){
+    enemyRunFrame = 0
+    } 
 }
 //runs the lvl (or scene whatever you want to call it)
     function RunScene(){
@@ -280,6 +315,7 @@ function animate(){
             }else if (player.currentAnimation != "jump"){
                 player.currentAnimation = "idle"
             }
+        enemy.animate()
         platform.draw()
         platform.collidingWithPlayer()
         console.log(player.x,player.hitboxX,player.y,player.hitboxY)
