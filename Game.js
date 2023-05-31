@@ -222,7 +222,6 @@ var enemyRunFrame = 0
                 player.oldY = player.y
                 player.y = player.y - yOverlap
                 player.yVelocity = 0
-                console.log(player.y,player.oldY)
                 if (player.oldY == player.y){
                     player.canJump = true
                     player.currentAnimation = "idle"
@@ -318,7 +317,6 @@ function animate(){
         enemy.animate()
         platform.draw()
         platform.collidingWithPlayer()
-        console.log(player.x,player.hitboxX,player.y,player.hitboxY)
         player.animate()
         player.fall()
         ctx.strokeStyle = "green"
