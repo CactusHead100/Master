@@ -7,11 +7,12 @@ window.onload=() => {
     const SCALE = 2
     const GRAVITY = 1.25
 
-//vairables for movement 
+//vairables for movement and attack
 var aKeyPressed = false
 var dKeyPressed = false
 var sKeyPressed = false
 var jumpKeyPressed = false
+var attackKeyPressed = false
 //variables for animaion
 var runFrame = 0
 var idleFrame = 0
@@ -158,28 +159,41 @@ var enemyRunFrame = 0
     class Enemy{
         constructor(){
             this.x = 0
-            this.y = 0 
             this.width = 19
             this.height = 17
+            this.y = CANVASHEIGHT - this.height * SCALE
             this.turnLeft
             this.turnRight
-            this.currentAnimation = "runRight"
-            this.lastFacing = "right"
+            this.currentAnimation = "running"
+            this.facing = "right"
 
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
         }
-        runRight(){
-            this.x++
+        move(){
+            if (this.currentAnimation = "running"){
+            if(this.facing == "right"){
+                this.x = this.x + 3
+            }else if(this.facing == "left"){
+                this.x = this.x - 3
+            }
         }
-        runLeft(){
-            this.y++
+            if(this.x + this.width * SCALE >= CANVASWIDTH){
+                this.facing = "left"
+            } else if(this.x <= 0){
+                this.facing = "right"
+            }
         }
         animate(){
-            if(this.lastFacing == "right"){
+            if (this.currentAnimation == "running") {
+            if(this.facing == "right"){
             ctx.drawImage(this.imageRunRight, this.width * enemyRunFrame, 0, 
                 this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
+            } else if (this.facing == "left"){
+                ctx.drawImage(this.imageRunLeft, this.width * enemyRunFrame, 0, 
+                    this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
             }
+        }
         }
     }
 //a platform class with x,y,width,height and jump through properties as well as collision
@@ -276,11 +290,12 @@ player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
 player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
-player.imageAttackRight = ""
-player.imageAttackLeft = ""
+player.imageAttackRight = "Sprites/01-King Human/Attack_Right.png"
+player.imageAttackLeft = "Sprites/01-King Human/Attack_Left.png"
 //creates a new enemy
 var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
+enemy.imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
 //creates a new object
 var platform = new Platform(100,550,100,26,false)
 //changes the fps of the players animations
@@ -314,6 +329,7 @@ function animate(){
             }else if (player.currentAnimation != "jump"){
                 player.currentAnimation = "idle"
             }
+        enemy.move()
         enemy.animate()
         platform.draw()
         platform.collidingWithPlayer()
@@ -364,3 +380,21 @@ addEventListener("keyup", keyReleased)
     }
 
 }
+
+addEventListener("mousedown", mouseClicked)
+
+    function mouseClicked(mouseDown){
+        var mouseClicked = mouseDown.button
+        if (mouseClicked == 0){
+            attackKeyPressed = true
+        }
+    }
+
+addEventListener("mouseup", mouseReleased)
+
+    function mouseReleased(mouseUp){
+        var mouseReleased = mouseUp.button
+        if (mouseReleased == 0){
+            attackKeyPressed = false
+        }
+    }
