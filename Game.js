@@ -87,14 +87,14 @@ var enemyRunFrame = 0
             moveRight(){
                 this.x = this.x + this.xVelocity
                 this.lastFacing = "right"
-                if(this.currentAnimation != "jump"){
+                if((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
                     this.currentAnimation = "runRight"
                 }
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
                 this.lastFacing = "left"
-                if(this.currentAnimation != "jump"){
+                if((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
                     this.currentAnimation = "runLeft"
                 }
             }
@@ -112,7 +112,9 @@ var enemyRunFrame = 0
                 this.y = Math.min(CANVASHEIGHT-this.height,this.y)
                 if (this.oldY == this.y){
                     this.canJump = true
+                    if(this.currentAnimation != "attacking"){
                     this.currentAnimation = "idle"
+                    }
                 }
             }
 //draws all the animations, sets the height of the player to the height of the image,
@@ -122,11 +124,9 @@ var enemyRunFrame = 0
             animate(){
 //draws jump animation
                 if (this.currentAnimation == "attacking"){
-                    this.height = 28
-                    console.log("attacking")
+                    this.height = this.animation.attack.height
                     if(this.lastFacing == "right"){
-                        ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth, 0,
-                            this.animation.attack.frameHeight, 100 ,100 ,100,100)
+                        ctx.drawImage(this.imageAttackRight, 0,0,50,50,100,100,100,100)
                     }
                 }else if (this.currentAnimation == "jump"){
                     this.height = 58
@@ -304,8 +304,8 @@ player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
 player.imageIdleLeft.src = "Sprites/01-King Human/Idle_Left.png"
 player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
-player.imageAttackRight = "Sprites/01-King Human/Attack_Right.png"
-player.imageAttackLeft = "Sprites/01-King Human/Attack_Left.png"
+player.imageAttackRight.src = "Sprites/01-King Human/Attack_Right.png" 
+player.imageAttackLeft.src = "Sprites/01-King Human/Attack_Left.png"
 //creates a new enemy
 var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
@@ -325,10 +325,12 @@ function animate(){
     }
     if(player.currentAnimation == "attacking"){
     attackFrame = attackFrame + 1
+    console.log("added")
     }
     if (attackFrame == 2 ){
         attackFrame = 0
         player.currentAnimation = player.lastAnimation
+        attackButtonPressed = false
     }
     enemyRunFrame = enemyRunFrame + 1
     if (enemyRunFrame == 6){
@@ -348,16 +350,15 @@ function animate(){
                 player.lastAnimation = player.currentAnimation
             }
             player.currentAnimation = "attacking" 
-            console.log("tree")
         } 
             if((dKeyPressed == true)&&(aKeyPressed == false)){
             player.moveRight()
             }else if((aKeyPressed == true)&&(dKeyPressed == false)){
                 player.moveLeft()
-            }else if (player.currentAnimation != "jump"){
+            }else if ((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
-            }
-            console.log(attackButtonPressed)
+            }   
+            console.log(player.currentAnimation,player.lastAnimation)
         enemy.move()
         enemy.animate()
         platform.draw()
@@ -408,7 +409,7 @@ addEventListener("keyup", keyReleased)
         }
     }
 
-}
+
 
 addEventListener("mousedown", mouseClicked)
 
@@ -419,7 +420,7 @@ addEventListener("mousedown", mouseClicked)
         }
     }
 //incase i ever need it
-
+/*
 addEventListener("mouseup", mouseReleased)
 
     function mouseReleased(mouseUp){
@@ -428,4 +429,5 @@ addEventListener("mouseup", mouseReleased)
             attackButtonPressed = false
         }
     }
-    
+    */
+}
