@@ -124,9 +124,15 @@ var enemyRunFrame = 0
             animate(){
 //draws jump animation
                 if (this.currentAnimation == "attacking"){
-                    this.height = this.animation.attack.height
+                    this.height = this.animation.attack.height * SCALE
                     if(this.lastFacing == "right"){
-                        ctx.drawImage(this.imageAttackRight, 0,0,50,50,100,100,100,100)
+                        ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
+                            0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 30,this.y - 32,
+                            this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
+                    } else if(this.lastFacing == "left"){
+                        ctx.drawImage(this.imageAttackLeft, attackFrame * this.animation.attack.frameWidth,
+                            0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 76,this.y - 32,
+                            this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
                     }
                 }else if (this.currentAnimation == "jump"){
                     this.height = 58
