@@ -12,10 +12,11 @@ var aKeyPressed = false
 var dKeyPressed = false
 var sKeyPressed = false
 var jumpKeyPressed = false
-var attackKeyPressed = false
+var attackButtonPressed = false
 //variables for animaion
 var runFrame = 0
 var idleFrame = 0
+var attackFrame = 0
 var enemyRunFrame = 0 
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
@@ -51,6 +52,7 @@ var enemyRunFrame = 0
             this.imageAttackRight = new Image()
             this.imageAttackLeft = new Image()
             this.currentAnimation = "idle"
+            this.lastAnimation = "idle"
             this.animation = {
                 runRight: {
                     frameCount:8,
@@ -70,6 +72,12 @@ var enemyRunFrame = 0
                 idleLeft: {
                     frameCount:11,
                     frameWidth:37,
+                    height:28,
+                },
+                attack: {
+                    frameCount:3,
+                    frameWidth:71,
+                    frameHeight:58,
                     height:28,
                 }             
             }
@@ -113,13 +121,19 @@ var enemyRunFrame = 0
 //also sets hitbox parameters for collsision
             animate(){
 //draws jump animation
-                if (this.currentAnimation == "jump"){
+                if (this.currentAnimation == "attacking"){
+                    this.height = 28
+                    console.log("attacking")
                     if(this.lastFacing == "right"){
-                this.drawHeight = 58
+                        ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth, 0,
+                            this.animation.attack.frameHeight, 100 ,100 ,100,100)
+                    }
+                }else if (this.currentAnimation == "jump"){
+                    this.height = 58
+                    if(this.lastFacing == "right"){
                 ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
                     74 ,this.height)
                     } else {
-                        this.height = 58
                         ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
                             74 ,this.height)   
                     }
@@ -309,6 +323,13 @@ function animate(){
     if (idleFrame == 11 ){
         idleFrame = 0
     }
+    if(player.currentAnimation == "attacking"){
+    attackFrame = attackFrame + 1
+    }
+    if (attackFrame == 2 ){
+        attackFrame = 0
+        player.currentAnimation = player.lastAnimation
+    }
     enemyRunFrame = enemyRunFrame + 1
     if (enemyRunFrame == 6){
     enemyRunFrame = 0
@@ -322,6 +343,13 @@ function animate(){
         if (jumpKeyPressed & player.canJump){
             player.jump()
         }
+        if(attackButtonPressed == true){
+            if(player.currentAnimation != "attacking"){
+                player.lastAnimation = player.currentAnimation
+            }
+            player.currentAnimation = "attacking" 
+            console.log("tree")
+        } 
             if((dKeyPressed == true)&&(aKeyPressed == false)){
             player.moveRight()
             }else if((aKeyPressed == true)&&(dKeyPressed == false)){
@@ -329,6 +357,7 @@ function animate(){
             }else if (player.currentAnimation != "jump"){
                 player.currentAnimation = "idle"
             }
+            console.log(attackButtonPressed)
         enemy.move()
         enemy.animate()
         platform.draw()
@@ -386,15 +415,17 @@ addEventListener("mousedown", mouseClicked)
     function mouseClicked(mouseDown){
         var mouseClicked = mouseDown.button
         if (mouseClicked == 0){
-            attackKeyPressed = true
+            attackButtonPressed = true
         }
     }
+//incase i ever need it
 
 addEventListener("mouseup", mouseReleased)
 
     function mouseReleased(mouseUp){
         var mouseReleased = mouseUp.button
         if (mouseReleased == 0){
-            attackKeyPressed = false
+            attackButtonPressed = false
         }
     }
+    
