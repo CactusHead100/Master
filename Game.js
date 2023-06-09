@@ -18,6 +18,7 @@ var runFrame = 0
 var idleFrame = 0
 var attackFrame = 0
 var enemyRunFrame = 0 
+var enemyAttackFrame = 0
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
         constructor(){
@@ -132,8 +133,8 @@ var enemyRunFrame = 0
             animate(){
                 ctx.drawImage(this.imageHeartsBorder, 0, 0, 66, 32, 10, 10, 66 * SCALE, 32 * SCALE)
                 ctx.drawImage(this.imageHearts, this.animation.hearts.frameWidth * runFrame, 0, 
-                    this.animation.hearts.frameWidth, this.animation.hearts.frameHeight, 40, 36,
-                    72, 14)
+                    this.animation.hearts.frameWidth/6*this.health, this.animation.hearts.frameHeight, 40, 36,
+                    this.animation.hearts.frameWidth/6*this.health*SCALE, 14)
 //draws jump animation
                 if (this.currentAnimation == "attacking"){
                     this.height = this.animation.attack.height * SCALE
@@ -193,10 +194,12 @@ var enemyRunFrame = 0
             this.x = 0
             this.width = 19
             this.height = 17
+            this.attackSize = 28
             this.y = CANVASHEIGHT - this.height * SCALE
             this.turnLeft
             this.turnRight
             this.currentAnimation = "running"
+            this.lastAnimation = "running"
             this.facing = "right"
             this.health = 3
             this.imageRunRight = new Image()
@@ -205,22 +208,27 @@ var enemyRunFrame = 0
             this.imageAttackLeft = new Image()
         }
         move(){
-            if (this.currentAnimation = "running"){
+            if (this.currentAnimation == "running"){
             if(this.facing == "right"){
                 this.x = this.x + 3
             }else if(this.facing == "left"){
                 this.x = this.x - 3
             }
-        }
+        }   
+            if(this.currentAnimation != "attack"){
             if(this.x + this.width * SCALE >= CANVASWIDTH){
                 this.facing = "left"
             } else if(this.x <= 0){
                 this.facing = "right"
             }
         }
+        }
         animate(){
             if(this.currentAnimation == "attack"){
                 console.log("pig attacks")
+                ctx.drawImage(this.imageAttackRight, enemyAttackFrame * this.attackSize, 0,
+                    this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
+                    this.attackSize * SCALE)
             }else if (this.currentAnimation == "running") {
             if(this.facing == "right"){
             ctx.drawImage(this.imageRunRight, this.width * enemyRunFrame, 0, 
@@ -244,6 +252,11 @@ var enemyRunFrame = 0
             if (xOverlap < yOverlap){
                 if (player.x > this.x){
                 player.x = player.x + xOverlap
+                if(this.currentAnimation != "attack"){
+                this.lastAnimation = this.currentAnimation
+                }
+                this.currentAnimation = "attack"
+                this.facing = "right"
                 } 
                 else if (player.x < this.x){
                     player.x = player.x - xOverlap
@@ -369,6 +382,8 @@ player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
 enemy.imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
+enemy.imageAttackRight.src = "Sprites/03-Pig/Pig_Attack_Right.png"
+enemy.imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png"
 //creates a new object
 var platform = new Platform(100, 550, 100, 26, false)
 //changes the fps of the players animations
@@ -384,7 +399,6 @@ function animate(){
     }
     if(player.currentAnimation == "attacking"){
     attackFrame = attackFrame + 1
-    console.log("added")
     }
     if (attackFrame == 2 ){
         attackFrame = 0
@@ -395,6 +409,14 @@ function animate(){
     if (enemyRunFrame == 6){
     enemyRunFrame = 0
     } 
+    if(enemy.currentAnimation == "attack"){
+        enemyAttackFrame = enemyAttackFrame + 1
+        }
+        if (enemyAttackFrame == 5 ){
+            enemyAttackFrame = 0
+            enemy.currentAnimation = enemy.lastAnimation
+            player.health = player.health - 1
+        }
 }
 //runs the level (or scene whatever you want to call it)
     function RunScene(){
@@ -418,7 +440,6 @@ function animate(){
             }else if ((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
             }   
-            console.log(player.currentAnimation,player.lastAnimation)
         enemy.move()
         enemy.animate()
         enemy.collidingWithPlayer()
