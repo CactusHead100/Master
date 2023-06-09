@@ -52,6 +52,7 @@ var enemyRunFrame = 0
             this.imageJumpLeft = new Image()
             this.imageAttackRight = new Image()
             this.imageAttackLeft = new Image()
+            this.imageHearts = new Image()
             this.currentAnimation = "idle"
             this.lastAnimation = "idle"
             this.animation = {
@@ -80,6 +81,11 @@ var enemyRunFrame = 0
                     frameWidth:71,
                     frameHeight:58,
                     height:28,
+                },
+                hearts: {
+                    frameCount:8,
+                    frameWidth:36,
+                    frameHeight:7,
                 }             
             }
         }
@@ -123,6 +129,8 @@ var enemyRunFrame = 0
 //and with a strip of images identical in width and height it gives the player animation 
 //also sets hitbox parameters for collsision
             animate(){
+                ctx.drawImage(this.imageHearts, 36 * runFrame, 0, 36, 7,10,10,
+                    72, 14)
 //draws jump animation
                 if (this.currentAnimation == "attacking"){
                     this.height = this.animation.attack.height * SCALE
@@ -348,6 +356,7 @@ player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight.src = "Sprites/01-King Human/Attack_Right.png" 
 player.imageAttackLeft.src = "Sprites/01-King Human/Attack_Left.png"
+player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 //creates a new enemy
 var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
