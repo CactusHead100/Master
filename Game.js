@@ -53,6 +53,7 @@ var enemyRunFrame = 0
             this.imageAttackRight = new Image()
             this.imageAttackLeft = new Image()
             this.imageHearts = new Image()
+            this.imageHeartsBorder = new Image()
             this.currentAnimation = "idle"
             this.lastAnimation = "idle"
             this.animation = {
@@ -129,7 +130,9 @@ var enemyRunFrame = 0
 //and with a strip of images identical in width and height it gives the player animation 
 //also sets hitbox parameters for collsision
             animate(){
-                ctx.drawImage(this.imageHearts, 36 * runFrame, 0, 36, 7,10,10,
+                ctx.drawImage(this.imageHeartsBorder, 0, 0, 66, 32, 10, 10, 66 * SCALE, 32 * SCALE)
+                ctx.drawImage(this.imageHearts, this.animation.hearts.frameWidth * runFrame, 0, 
+                    this.animation.hearts.frameWidth, this.animation.hearts.frameHeight, 40, 36,
                     72, 14)
 //draws jump animation
                 if (this.currentAnimation == "attacking"){
@@ -198,6 +201,8 @@ var enemyRunFrame = 0
             this.health = 3
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
+            this.imageAttackRight = new Image()
+            this.imageAttackLeft = new Image()
         }
         move(){
             if (this.currentAnimation = "running"){
@@ -214,7 +219,9 @@ var enemyRunFrame = 0
             }
         }
         animate(){
-            if (this.currentAnimation == "running") {
+            if(this.currentAnimation == "attack"){
+                console.log("pig attacks")
+            }else if (this.currentAnimation == "running") {
             if(this.facing == "right"){
             ctx.drawImage(this.imageRunRight, this.width * enemyRunFrame, 0, 
                 this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
@@ -357,6 +364,7 @@ player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight.src = "Sprites/01-King Human/Attack_Right.png" 
 player.imageAttackLeft.src = "Sprites/01-King Human/Attack_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
+player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 //creates a new enemy
 var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
