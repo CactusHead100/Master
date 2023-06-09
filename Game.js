@@ -29,6 +29,7 @@ var enemyRunFrame = 0
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
+            this.health = 6
 
             this.hammer = {
                 x:0,
@@ -186,7 +187,7 @@ var enemyRunFrame = 0
             this.turnRight
             this.currentAnimation = "running"
             this.facing = "right"
-
+            this.health = 3
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
         }
@@ -215,6 +216,41 @@ var enemyRunFrame = 0
             }
         }
         }
+        collidingWithPlayer(){
+            if ((player.x + player.width > this.x)
+            &&(player.y + player.height > this.y)
+            &&(player.x < this.x + this.width * SCALE)
+            &&(player.y < this.y + this.height)
+            ) {
+//Caculates overlap (I got these 2 lines from chat.GPT)
+            var xOverlap = Math.min(player.x + player.width, this.x + this.width * SCALE) - Math.max(player.x, this.x)
+            var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
+//resolves overlap
+            if (xOverlap < yOverlap){
+                if (player.x > this.x){
+                player.x = player.x + xOverlap
+                } 
+                else if (player.x < this.x){
+                    player.x = player.x - xOverlap
+                }
+            }
+            if (yOverlap < xOverlap){
+                if (player.y > this.y){
+                player.y = player.y + yOverlap
+// makes it so the character starts falling when hitting the bottom of a platform
+                player.yVelocity = -1    
+            }else if((player.y < this.y)){
+                player.oldY = player.y
+                player.y = player.y - yOverlap
+                player.yVelocity = 0
+                if (player.oldY == player.y){
+                    player.canJump = true
+                    player.currentAnimation = "idle"
+                }
+            }
+            }
+        }
+    }
     }
 //a platform class with x,y,width,height and jump through properties as well as collision
     class Platform{
@@ -317,7 +353,7 @@ var enemy = new Enemy()
 enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
 enemy.imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
 //creates a new object
-var platform = new Platform(100,550,100,26,false)
+var platform = new Platform(100, 550, 100, 26, false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -343,10 +379,11 @@ function animate(){
     enemyRunFrame = 0
     } 
 }
-//runs the lvl (or scene whatever you want to call it)
+//runs the level (or scene whatever you want to call it)
     function RunScene(){
 //clears the canvas allowing animations to look clean and not have after images 
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
+        ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
         if (jumpKeyPressed & player.canJump){
             player.jump()
@@ -367,6 +404,7 @@ function animate(){
             console.log(player.currentAnimation,player.lastAnimation)
         enemy.move()
         enemy.animate()
+        enemy.collidingWithPlayer()
         platform.draw()
         platform.collidingWithPlayer()
         player.animate()
