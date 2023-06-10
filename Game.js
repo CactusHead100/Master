@@ -119,7 +119,9 @@ var enemyAttackFrame = 0
             jump(){
                 this.yVelocity = 18
                 this.canJump = false
+                if(player.currentAnimation != "hurt"){
                 this.currentAnimation = "jump"
+                }
             }
             fall(){
                 this.oldY = this.y
@@ -457,10 +459,10 @@ function animate(){
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
-        if(player.currentAnimation != "hurt"){
         if (jumpKeyPressed & player.canJump){
             player.jump()
         }
+        if(player.currentAnimation != "hurt"){
         if(attackButtonPressed == true){
             if(player.currentAnimation != "attacking"){
                 player.lastAnimation = player.currentAnimation
