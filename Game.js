@@ -53,6 +53,8 @@ var enemyAttackFrame = 0
             this.imageJumpLeft = new Image()
             this.imageAttackRight = new Image()
             this.imageAttackLeft = new Image()
+            this.imageHurtRight = new Image()
+            this.imageHurtLeft = new Image()
             this.imageHearts = new Image()
             this.imageHeartsBorder = new Image()
             this.currentAnimation = "idle"
@@ -257,6 +259,8 @@ var enemyAttackFrame = 0
                 }
                 this.currentAnimation = "attack"
                 this.facing = "right"
+                player.health = player.health - 1
+                player.currentAnimation = "hurt"
                 } 
                 else if (player.x < this.x){
                     player.x = player.x - xOverlap
@@ -376,6 +380,8 @@ player.imageJumpRight.src = "Sprites/01-King Human/JumpRight.png"
 player.imageJumpLeft.src = "Sprites/01-King Human/JumpLeft.png"
 player.imageAttackRight.src = "Sprites/01-King Human/Attack_Right.png" 
 player.imageAttackLeft.src = "Sprites/01-King Human/Attack_Left.png"
+player.imageHurtRight.src = "Sprites/01-King Human/Hurt_Right.png"
+player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 //creates a new enemy
@@ -415,7 +421,6 @@ function animate(){
         if (enemyAttackFrame == 5 ){
             enemyAttackFrame = 0
             enemy.currentAnimation = enemy.lastAnimation
-            player.health = player.health - 1
         }
 }
 //runs the level (or scene whatever you want to call it)
