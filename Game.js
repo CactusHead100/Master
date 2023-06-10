@@ -17,6 +17,7 @@ var attackButtonPressed = false
 var runFrame = 0
 var idleFrame = 0
 var attackFrame = 0
+var hurtFrame = 0
 var enemyRunFrame = 0 
 var enemyAttackFrame = 0
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
@@ -86,6 +87,11 @@ var enemyAttackFrame = 0
                     frameHeight:58,
                     height:28,
                 },
+                hurt: {
+                    frameCount:4,
+                    frameWidth:37,
+                    height:26,
+                },
                 hearts: {
                     frameCount:8,
                     frameWidth:36,
@@ -98,14 +104,14 @@ var enemyAttackFrame = 0
             moveRight(){
                 this.x = this.x + this.xVelocity
                 this.lastFacing = "right"
-                if((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
+                if((this.currentAnimation != "hurt")&&(this.currentAnimation != "jump")&&(this.currentAnimation != "attacking")){
                     this.currentAnimation = "runRight"
                 }
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
                 this.lastFacing = "left"
-                if((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
+                if((this.currentAnimation != "hurt")&&(this.currentAnimation != "jump")&&(this.currentAnimation != "attacking")){
                     this.currentAnimation = "runLeft"
                 }
             }
@@ -123,7 +129,7 @@ var enemyAttackFrame = 0
                 this.y = Math.min(CANVASHEIGHT-this.height,this.y)
                 if (this.oldY == this.y){
                     this.canJump = true
-                    if(this.currentAnimation != "attacking"){
+                    if((this.currentAnimation != "attacking")&&(this.currentAnimation != "hurt")){
                     this.currentAnimation = "idle"
                     }
                 }
@@ -138,7 +144,19 @@ var enemyAttackFrame = 0
                     this.animation.hearts.frameWidth/6*this.health, this.animation.hearts.frameHeight, 40, 36,
                     this.animation.hearts.frameWidth/6*this.health*SCALE, 14)
 //draws jump animation
-                if (this.currentAnimation == "attacking"){
+                    if(this.currentAnimation == "hurt"){
+                        this.height = this.animation.hurt.height * SCALE    
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageHurtRight, this.animation.hurt.frameWidth * hurtFrame,
+                                0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.headWidth,
+                                this.y, this.animation.hurt.frameWidth * SCALE, this.height)
+                        }else if(this.lastFacing == "left"){
+                            console.log("drawing...")
+                            ctx.drawImage(this.imageHurtLeft, this.animation.hurt.frameWidth * hurtFrame,
+                                0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.handleWidth,
+                                this.y, this.animation.hurt.frameWidth * SCALE, this.height)
+                        }
+                    }else if (this.currentAnimation == "attacking"){
                     this.height = this.animation.attack.height * SCALE
                     if(this.lastFacing == "right"){
                         ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
@@ -227,7 +245,6 @@ var enemyAttackFrame = 0
         }
         animate(){
             if(this.currentAnimation == "attack"){
-                console.log("pig attacks")
                 ctx.drawImage(this.imageAttackRight, enemyAttackFrame * this.attackSize, 0,
                     this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
                     this.attackSize * SCALE)
@@ -259,7 +276,10 @@ var enemyAttackFrame = 0
                 }
                 this.currentAnimation = "attack"
                 this.facing = "right"
+                if(player.currentAnimation != "hurt"){
                 player.health = player.health - 1
+                player.lastFacing = "left"
+                }
                 player.currentAnimation = "hurt"
                 } 
                 else if (player.x < this.x){
@@ -411,6 +431,14 @@ function animate(){
         player.currentAnimation = player.lastAnimation
         attackButtonPressed = false
     }
+    if(player.currentAnimation == "hurt"){
+        hurtFrame = hurtFrame + 1
+        }
+        if (hurtFrame == 4 ){
+            hurtFrame = 0
+            console.log("done")
+            player.currentAnimation = player.lastAnimation
+        }
     enemyRunFrame = enemyRunFrame + 1
     if (enemyRunFrame == 6){
     enemyRunFrame = 0
@@ -429,6 +457,7 @@ function animate(){
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
+        if(player.currentAnimation != "hurt"){
         if (jumpKeyPressed & player.canJump){
             player.jump()
         }
@@ -437,12 +466,15 @@ function animate(){
                 player.lastAnimation = player.currentAnimation
             }
             player.currentAnimation = "attacking" 
-        } 
+        }
+    } 
             if((dKeyPressed == true)&&(aKeyPressed == false)){
             player.moveRight()
             }else if((aKeyPressed == true)&&(dKeyPressed == false)){
                 player.moveLeft()
-            }else if ((player.currentAnimation != "jump")&&(player.currentAnimation != "attacking")){
+            }else if ((player.currentAnimation != "hurt")
+            &&(player.currentAnimation != "jump")
+            &&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
             }   
         enemy.move()
