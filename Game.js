@@ -1,7 +1,3 @@
-window.onload=() => {
-    var c = document.getElementById("canvas")
-    var ctx = c.getContext("2d")
-
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
     const SCALE = 2
@@ -20,6 +16,9 @@ var attackFrame = 0
 var hurtFrame = 0
 var enemyRunFrame = 0 
 var enemyAttackFrame = 0
+window.onload=() => {
+    var c = document.getElementById("canvas")
+    var ctx = c.getContext("2d")
 //player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
         constructor(){
@@ -131,7 +130,7 @@ var enemyAttackFrame = 0
                 this.y = Math.min(CANVASHEIGHT-this.height,this.y)
                 if (this.oldY == this.y){
                     this.canJump = true
-                    if((this.currentAnimation != "attacking")&&(this.currentAnimation != "hurt")){
+                    if(this.currentAnimation == "jump"){
                     this.currentAnimation = "idle"
                     }
                 }
@@ -348,7 +347,6 @@ var enemyAttackFrame = 0
                 player.yVelocity = 0
                 if (player.oldY == player.y){
                     player.canJump = true
-                    player.currentAnimation = "idle"
                 }
             }
             }
@@ -413,7 +411,7 @@ enemy.imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
 enemy.imageAttackRight.src = "Sprites/03-Pig/Pig_Attack_Right.png"
 enemy.imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png"
 //creates a new object
-var platform = new Platform(100, 550, 100, 26, false)
+var platform = new Platform(100, 550, 100, 260, false)
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -479,6 +477,7 @@ function animate(){
             &&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
             }   
+        console.log(rectangleCollision(player.x,player.y,player.width,player.height,platform.x,platform.y,platform.width,platform.height))
         enemy.move()
         enemy.animate()
         enemy.collidingWithPlayer()
