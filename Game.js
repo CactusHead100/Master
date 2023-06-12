@@ -1,37 +1,45 @@
+window.onload=() => {
+    var c = document.getElementById("canvas")
+    var ctx = c.getContext("2d")
+
     const CANVASWIDTH = 800
     const CANVASHEIGHT = 640
     const SCALE = 2
     const GRAVITY = 1.25
 
 //vairables for movement and attack
-var aKeyPressed = false
-var dKeyPressed = false
-var sKeyPressed = false
-var jumpKeyPressed = false
-var attackButtonPressed = false
+    var aKeyPressed = false
+    var dKeyPressed = false
+    var sKeyPressed = false
+    var jumpKeyPressed = false
+    var attackButtonPressed = false
+
 //variables for animaion
-var runFrame = 0
-var idleFrame = 0
-var attackFrame = 0
-var hurtFrame = 0
-var enemyRunFrame = 0 
-var enemyAttackFrame = 0
-window.onload=() => {
-    var c = document.getElementById("canvas")
-    var ctx = c.getContext("2d")
-//player object with x,y,width,height, viarables for jumping and also some properties for its hammer
+    var runFrame = 0
+    var idleFrame = 0
+    var attackFrame = 0
+    var hurtFrame = 0
+    var enemyRunFrame = 0 
+    var enemyAttackFrame = 0
+
+//Player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
+//Holds all the variables for the player
         constructor(){
+//These are used for the player hitbox and the animation is base of these 
+//but also includes the hammer dimensions so that all frames draw reletive to each other
             this.x = 0
             this.y = 0
-            this.oldY
             this.width = 21 * SCALE
-            this.height 
+            this.height
+//Used to make player jump and reset the jump
+            this.oldY 
             this.xVelocity = 9
             this.yVelocity = 0
             this.canJump = true
-            this.health = 6
 
+            this.health = 6
+//Used to make sure player hitbox stays centered on the player body
             this.hammer = {
                 x:0,
                 y:0,
@@ -43,8 +51,8 @@ window.onload=() => {
                 attackDamage:0,
             }
 
-//stores all info about drawing each frame of the animation
-            this.lastFacing = "right"
+//Creates image vairables that are defined after var player is
+//once sourced these are used to draw the images
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
             this.imageIdleRight = new Image()
@@ -57,42 +65,41 @@ window.onload=() => {
             this.imageHurtLeft = new Image()
             this.imageHearts = new Image()
             this.imageHeartsBorder = new Image()
+//Controls the oreintation of the player and allows for switching from a once off animation to
+//a repeditive one smoothly i.e. hit stops after 3 frames so once it stops ot goes back to a 
+//repeditive animation "idle" for instance 
+            this.lastFacing = "right"
             this.currentAnimation = "idle"
             this.lastAnimation = "idle"
+//Stores widths and heights for player hitbox and how big/small to draw the animations
+//as they differ in size 
             this.animation = {
                 runRight: {
-                    frameCount:8,
                     frameWidth:37,
                     height:26,
                 },
                 runLeft: {
-                    frameCount:8,
                     frameWidth:37,
                     height:26,
                 },
                 idleRight: {
-                    frameCount:11,
                     frameWidth:37,
                     height:28,
                 },   
                 idleLeft: {
-                    frameCount:11,
                     frameWidth:37,
                     height:28,
                 },
                 attack: {
-                    frameCount:3,
                     frameWidth:71,
                     frameHeight:58,
                     height:28,
                 },
                 hurt: {
-                    frameCount:4,
                     frameWidth:37,
                     height:26,
                 },
                 hearts: {
-                    frameCount:8,
                     frameWidth:36,
                     frameHeight:7,
                 }             
@@ -102,6 +109,7 @@ window.onload=() => {
 //controls horizontal movement of the player
             moveRight(){
                 this.x = this.x + this.xVelocity
+//controls what oreintation to draw the animations ofthe player
                 this.lastFacing = "right"
                 if((this.currentAnimation != "hurt")&&(this.currentAnimation != "jump")&&(this.currentAnimation != "attacking")){
                     this.currentAnimation = "runRight"
@@ -109,6 +117,7 @@ window.onload=() => {
             }
             moveLeft(){
                 this.x = this.x - this.xVelocity
+//same thing here
                 this.lastFacing = "left"
                 if((this.currentAnimation != "hurt")&&(this.currentAnimation != "jump")&&(this.currentAnimation != "attacking")){
                     this.currentAnimation = "runLeft"
@@ -123,6 +132,8 @@ window.onload=() => {
                 }
             }
             fall(){
+//OldyY is set to y position, y position is changed and if the y postition is the same 
+//as it was before it allows the player to jump again
                 this.oldY = this.y
                 this.y = this.y - this.yVelocity
                 this.yVelocity = this.yVelocity - GRAVITY
@@ -138,13 +149,12 @@ window.onload=() => {
 //draws all the animations, sets the height of the player to the height of the image,
 //then draws it using the timer "animate" to change the x position of where to draw the image 
 //and with a strip of images identical in width and height it gives the player animation 
-//also sets hitbox parameters for collsision
+//also changes hitbox parameters for collsision
             animate(){
                 ctx.drawImage(this.imageHeartsBorder, 0, 0, 66, 32, 10, 10, 66 * SCALE, 32 * SCALE)
                 ctx.drawImage(this.imageHearts, this.animation.hearts.frameWidth * runFrame, 0, 
-                    this.animation.hearts.frameWidth/6*this.health, this.animation.hearts.frameHeight, 40, 36,
-                    this.animation.hearts.frameWidth/6*this.health*SCALE, 14)
-//draws jump animation
+                    this.animation.hearts.frameWidth/6 * this.health, this.animation.hearts.frameHeight, 40, 36,
+                    this.animation.hearts.frameWidth/6 * this.health * SCALE, 14)
                     if(this.currentAnimation == "hurt"){
                         this.height = this.animation.hurt.height * SCALE    
                         if(this.lastFacing == "right"){
@@ -158,41 +168,38 @@ window.onload=() => {
                                 this.y, this.animation.hurt.frameWidth * SCALE, this.height)
                         }
                     }else if (this.currentAnimation == "attacking"){
-                    this.height = this.animation.attack.height * SCALE
-                    if(this.lastFacing == "right"){
-                        ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
-                            0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 30,this.y - 32,
-                            this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
-                    } else if(this.lastFacing == "left"){
-                        ctx.drawImage(this.imageAttackLeft, attackFrame * this.animation.attack.frameWidth,
-                            0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 76,this.y - 32,
-                            this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
-                    }
-                }else if (this.currentAnimation == "jump"){
-                    this.height = 58
-                    if(this.lastFacing == "right"){
-                ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
-                    74 ,this.height)
-                    } else {
-                        ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
-                            74 ,this.height)   
-                    }
-                } else if (this.currentAnimation == "runRight"){
-//draws run right animation
+                        this.height = this.animation.attack.height * SCALE
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
+                                0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 30,this.y - 32,
+                                this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
+                        } else if(this.lastFacing == "left"){
+                            ctx.drawImage(this.imageAttackLeft, attackFrame * this.animation.attack.frameWidth,
+                                0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 76,this.y - 32,
+                                this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
+                        }
+                    }else if (this.currentAnimation == "jump"){
+                        this.height = 58
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
+                                74 ,this.height)
+                        } else {
+                            ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
+                                74 ,this.height)   
+                        }
+                    } else if (this.currentAnimation == "runRight"){
                 this.height = this.animation.runRight.height * SCALE
                 ctx.drawImage(this.imageRunRight, this.animation.runRight.frameWidth * runFrame,
                     0, this.animation.runRight.frameWidth, 
                     this.animation.runRight.height, this.x - this.hammer.headWidth, this.y, 
                     this.width + this.hammer.totlaWidth, this.height)
                 }else if (this.currentAnimation == "runLeft"){
-//draws run left animation
                 this.height = SCALE * this.animation.runLeft.height
                 ctx.drawImage(this.imageRunLeft, this.animation.runLeft.frameWidth * runFrame,
                     0, this.animation.runLeft.frameWidth, 
                     this.animation.runLeft.height, this.x - this.hammer.handleWidth,
                     this.y, this.width + this.hammer.totlaWidth, this.height)
                 } else if (this.currentAnimation == "idle"){
-//draws idle animations
                 if (this.lastFacing == "left"){
                 this.height = SCALE * this.animation.idleLeft.height
                 ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.frameWidth * idleFrame,
