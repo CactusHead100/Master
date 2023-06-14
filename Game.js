@@ -19,9 +19,11 @@ window.onload=() => {
     var idleFrame = 0
     var attackFrame = 0
     var hurtFrame = 0
-    var enemyRunFrame = 0 
-    var enemyAttackFrame = 0
-
+//variables to let me do collision with each of specified object
+var platforms = []
+var enemies = []
+var currentObject = 0
+var collision = []
 //Player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
 //Holds all the variables for the player
@@ -162,7 +164,6 @@ window.onload=() => {
                                 0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.headWidth,
                                 this.y, this.animation.hurt.frameWidth * SCALE, this.height)
                         }else if(this.lastFacing == "left"){
-                            console.log("drawing...")
                             ctx.drawImage(this.imageHurtLeft, this.animation.hurt.frameWidth * hurtFrame,
                                 0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.handleWidth,
                                 this.y, this.animation.hurt.frameWidth * SCALE, this.height)
@@ -218,18 +219,20 @@ window.onload=() => {
     }
 //a enemy that walks left and right and damages player
     class Enemy{
-        constructor(){
-            this.x = 0
+        constructor(x,y,health){
+            this.x = x
             this.width = 19
             this.height = 17
             this.attackSize = 28
-            this.y = CANVASHEIGHT - this.height * SCALE
+            this.y = y
             this.turnLeft
             this.turnRight
             this.currentAnimation = "running"
             this.lastAnimation = "running"
             this.facing = "right"
-            this.health = 3
+            this.health = health
+            this.attackFrame = 0
+            this.runFrame = 0
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
             this.imageAttackRight = new Image()
@@ -253,64 +256,25 @@ window.onload=() => {
         }
         animate(){
             if(this.currentAnimation == "attack"){
-                ctx.drawImage(this.imageAttackRight, enemyAttackFrame * this.attackSize, 0,
+                if(this.facing == "right"){
+                ctx.drawImage(this.imageAttackRight, this.attackFrame * this.attackSize, 0,
                     this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
                     this.attackSize * SCALE)
+                }else{
+                    ctx.drawImage(this.imageAttackLeft, this.attackFrame * this.attackSize, 0,
+                        this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
+                        this.attackSize * SCALE) 
+                }
             }else if (this.currentAnimation == "running") {
             if(this.facing == "right"){
-            ctx.drawImage(this.imageRunRight, this.width * enemyRunFrame, 0, 
+            ctx.drawImage(this.imageRunRight, this.width * this.runFrame, 0, 
                 this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
             } else if (this.facing == "left"){
-                ctx.drawImage(this.imageRunLeft, this.width * enemyRunFrame, 0, 
+                ctx.drawImage(this.imageRunLeft, this.width * enemies[currentObject].runFrame, 0, 
                     this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
             }
         }
         }
-        collidingWithPlayer(){
-            if ((player.x + player.width > this.x)
-            &&(player.y + player.height > this.y)
-            &&(player.x < this.x + this.width * SCALE)
-            &&(player.y < this.y + this.height)
-            ) {
-//Caculates overlap (I got these 2 lines from chat.GPT)
-            var xOverlap = Math.min(player.x + player.width, this.x + this.width * SCALE) - Math.max(player.x, this.x)
-            var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
-//resolves overlap
-            if (xOverlap < yOverlap){
-                if (player.x > this.x){
-                player.x = player.x + xOverlap
-                if(this.currentAnimation != "attack"){
-                this.lastAnimation = this.currentAnimation
-                }
-                this.currentAnimation = "attack"
-                this.facing = "right"
-                if(player.currentAnimation != "hurt"){
-                player.health = player.health - 1
-                player.lastFacing = "left"
-                }
-                player.currentAnimation = "hurt"
-                } 
-                else if (player.x < this.x){
-                    player.x = player.x - xOverlap
-                }
-            }
-            if (yOverlap < xOverlap){
-                if (player.y > this.y){
-                player.y = player.y + yOverlap
-// makes it so the character starts falling when hitting the bottom of a platform
-                player.yVelocity = -1    
-            }else if((player.y < this.y)){
-                player.oldY = player.y
-                player.y = player.y - yOverlap
-                player.yVelocity = 0
-                if (player.oldY == player.y){
-                    player.canJump = true
-                    player.currentAnimation = "idle"
-                }
-            }
-            }
-        }
-    }
     }
 //a platform class with x,y,width,height and jump through properties as well as collision
     class Platform{
@@ -412,11 +376,15 @@ player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 //creates a new enemy
-var enemy = new Enemy()
-enemy.imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
-enemy.imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
-enemy.imageAttackRight.src = "Sprites/03-Pig/Pig_Attack_Right.png"
-enemy.imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png"
+enemies.push(new Enemy(CANVASWIDTH-38,CANVASHEIGHT-34,3),new Enemy(0,CANVASHEIGHT-34,3))
+currentObject = 0
+while(enemies.length > currentObject){
+enemies[currentObject].imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
+enemies[currentObject].imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
+enemies[currentObject].imageAttackRight.src = "Sprites/03-Pig/Pig_Attack_Right.png"
+enemies[currentObject].imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png"
+currentObject++
+}
 //creates a new object
 var platform = new Platform(100, 550, 100, 260, false)
 //changes the fps of the players animations
@@ -441,22 +409,25 @@ function animate(){
     if(player.currentAnimation == "hurt"){
         hurtFrame = hurtFrame + 1
         }
-        if (hurtFrame == 4 ){
-            hurtFrame = 0
-            console.log("done")
-            player.currentAnimation = player.lastAnimation
-        }
-    enemyRunFrame = enemyRunFrame + 1
-    if (enemyRunFrame == 6){
-    enemyRunFrame = 0
+    if (hurtFrame == 4 ){
+        hurtFrame = 0
+        player.currentAnimation = player.lastAnimation
+    }
+    currentObject = 0
+    while(currentObject<enemies.length){
+    enemies[currentObject].runFrame = enemies[currentObject].runFrame + 1
+    if (enemies[currentObject].runFrame == 6){
+    enemies[currentObject].runFrame = 0
     } 
-    if(enemy.currentAnimation == "attack"){
-        enemyAttackFrame = enemyAttackFrame + 1
-        }
-        if (enemyAttackFrame == 5 ){
-            enemyAttackFrame = 0
-            enemy.currentAnimation = enemy.lastAnimation
-        }
+    if(enemies[currentObject].currentAnimation == "attack"){
+        enemies[currentObject].attackFrame++
+    }
+    if (enemies[currentObject].attackFrame == 5 ){
+        enemies[currentObject].attackFrame = 0
+        enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
+    }
+    currentObject++
+    }
 }
 //runs the level (or scene whatever you want to call it)
     function RunScene(){
@@ -484,10 +455,44 @@ function animate(){
             &&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
             }   
-        console.log(rectangleCollision(player.x,player.y,player.width,player.height,platform.x,platform.y,platform.width,platform.height))
-        enemy.move()
-        enemy.animate()
-        enemy.collidingWithPlayer()
+        currentObject = 0
+        while(enemies.length > currentObject){
+            enemies[currentObject].move()
+            enemies[currentObject].animate()
+            //enemies[currentObject].collidingWithPlayer()
+            collision = boundingBox(player.x,player.y,player.width,player.height,
+                enemies[currentObject].x,enemies[currentObject].y,
+                enemies[currentObject].width * SCALE,enemies[currentObject].height)
+            switch(collision.side){
+                case "right":
+                    player.x = player.x + collision.overlap
+                    if(enemies[currentObject].currentAnimation != "attack"){
+                        enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
+                        }
+                        enemies[currentObject].currentAnimation = "attack"
+                        enemies[currentObject].facing = "right"
+                        if(player.currentAnimation != "hurt"){
+                        player.health = player.health - 1
+                        player.lastFacing = "left"
+                        }
+                        player.currentAnimation = "hurt"
+                    break
+                case "left":
+                    player.x = player.x - collision.overlap
+                    if(enemies[currentObject].currentAnimation != "attack"){
+                        enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
+                        }
+                        enemies[currentObject].currentAnimation = "attack"
+                        enemies[currentObject].facing = "left"
+                        if(player.currentAnimation != "hurt"){
+                        player.health = player.health - 1
+                        player.lastFacing = "right"
+                        }
+                        player.currentAnimation = "hurt"
+                    break
+            }
+            currentObject++ 
+        }
         platform.draw()
         platform.collidingWithPlayer()
         player.animate()
