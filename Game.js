@@ -262,7 +262,7 @@ var collision = []
                     this.attackSize * SCALE)
                 }else{
                     ctx.drawImage(this.imageAttackLeft, this.attackFrame * this.attackSize, 0,
-                        this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
+                        this.attackSize, this.attackSize, this.x - 8, this.y - 22, this.attackSize * SCALE,
                         this.attackSize * SCALE) 
                 }
             }else if (this.currentAnimation == "running") {
@@ -286,43 +286,9 @@ var collision = []
             this.jumpThrough = jumpThrough
         }
         draw(){
+            ctx.fillStyle = "blue"
             ctx.fillRect(this.x,this.y,this.width,this.height)
         }
-//Checks and resolves collision with player 
-        collidingWithPlayer(){
-            if ((player.x + player.width > this.x)
-            &&(player.y + player.height > this.y)
-            &&(player.x < this.x + this.width)
-            &&(player.y < this.y + this.height)
-            ) {
-//Caculates overlap (I got these 2 lines from chat.GPT)
-            var xOverlap = Math.min(player.x + player.width, this.x + this.width) - Math.max(player.x, this.x)
-            var yOverlap = Math.min(player.y + player.height, this.y + this.height) - Math.max(player.y, this.y)
-//resolves overlap
-            if (xOverlap < yOverlap){
-                if (player.x > this.x){
-                player.x = player.x + xOverlap
-                } 
-                else if (player.x < this.x){
-                    player.x = player.x - xOverlap
-                }
-            }
-            if (yOverlap < xOverlap){
-                if (player.y > this.y){
-                player.y = player.y + yOverlap
-// makes it so the character starts falling when hitting the bottom of a platform
-                player.yVelocity = -1    
-            }else if((player.y < this.y)){
-                player.oldY = player.y
-                player.y = player.y - yOverlap
-                player.yVelocity = 0
-                if (player.oldY == player.y){
-                    player.canJump = true
-                }
-            }
-            }
-        }
-    }   
     }
 
 //Bomb blows up and damages player
@@ -386,7 +352,7 @@ enemies[currentObject].imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png
 currentObject++
 }
 //creates a new object
-var platform = new Platform(100, 550, 100, 260, false)
+platforms =[new Platform(100, 550, 100, 260, false), new Platform(300, 500,100,26)]
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -432,6 +398,7 @@ function animate(){
 //runs the level (or scene whatever you want to call it)
     function RunScene(){
 //clears the canvas allowing animations to look clean and not have after images 
+        ctx.fillStyle = "black"
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
@@ -490,11 +457,46 @@ function animate(){
                         }
                         player.currentAnimation = "hurt"
                     break
+                case "top":
+                    player.oldY = player.y
+                    player.y = player.y - collision.overlap
+                    player.yVelocity = 0
+                    if (player.oldY == player.y){
+                    player.canJump = true
+                    }
+                    break
             }
             currentObject++ 
         }
-        platform.draw()
-        platform.collidingWithPlayer()
+        currentObject = 0
+        while(currentObject<platforms.length){
+        platforms[currentObject].draw()
+        collision = boundingBox(player.x,player.y,player.width,player.height,
+            platforms[currentObject].x, platforms[currentObject].y,
+            platforms[currentObject].width, platforms[currentObject].height)
+        switch(collision.side){
+            case "right":
+                player.x = player.x + collision.overlap
+                break
+            case "left":
+                player.x = player.x - collision.overlap
+                break
+            case "top":
+                player.oldY = player.y
+                player.y = player.y - collision.overlap
+                player.yVelocity = 0
+                if (player.oldY == player.y){
+                    player.canJump = true
+                }
+                break
+            case "bottom":
+                player.y = player.y + collision.overlap
+                player.yVelocity = -1
+                break
+                
+        }
+        currentObject++
+        }
         player.animate()
         player.fall()
         ctx.strokeStyle = "green"
@@ -547,7 +549,7 @@ addEventListener("mousedown", mouseClicked)
 
     function mouseClicked(mouseDown){
         var mouseClicked = mouseDown.button
-        if (mouseClicked == 0){
+        if ((mouseClicked == 0)&&(player.currentAnimation != "attacking")){
             attackButtonPressed = true
         }
     }
