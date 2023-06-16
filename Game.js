@@ -2,7 +2,7 @@ window.onload=() => {
     var c = document.getElementById("canvas")
     var ctx = c.getContext("2d")
 
-    const CANVASWIDTH = 800
+    const CANVASWIDTH = 832
     const CANVASHEIGHT = 640
     const SCALE = 2
     const GRAVITY = 1.25
@@ -426,12 +426,21 @@ function animate(){
         while(enemies.length > currentObject){
             enemies[currentObject].move()
             enemies[currentObject].animate()
-            //enemies[currentObject].collidingWithPlayer()
-            collision = boundingBox(player.x,player.y,player.width,player.height,
-                enemies[currentObject].x,enemies[currentObject].y,
-                enemies[currentObject].width * SCALE,enemies[currentObject].height)
+            //if(player.currentAnimation == "attacking"){
+                collision = boundingBox(player.x,player.y,player.width,player.height,
+                    enemies[currentObject].x,enemies[currentObject].y,
+                    enemies[currentObject].width * SCALE,enemies[currentObject].height)
+            /*}else{
+                collision = boundingBox(player.x - 30, player.y - 32,player.width,player.height,
+                    enemies[currentObject].x,enemies[currentObject].y,
+                    enemies[currentObject].width * SCALE,enemies[currentObject].height)
+                    //this.x - 30,this.y - 32, this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE
+                }*/
             switch(collision.side){
                 case "right":
+                    if(player.currentAnimation == "attacking"){
+
+                    }else{
                     player.x = player.x + collision.overlap
                     if(enemies[currentObject].currentAnimation != "attack"){
                         enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
@@ -443,26 +452,35 @@ function animate(){
                         player.lastFacing = "left"
                         }
                         player.currentAnimation = "hurt"
+                    }
                     break
                 case "left":
-                    player.x = player.x - collision.overlap
-                    if(enemies[currentObject].currentAnimation != "attack"){
-                        enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
-                        }
-                        enemies[currentObject].currentAnimation = "attack"
-                        enemies[currentObject].facing = "left"
-                        if(player.currentAnimation != "hurt"){
-                        player.health = player.health - 1
-                        player.lastFacing = "right"
+                    if(player.currentAnimation == "attacking"){
+
+                    }else{
+                        player.x = player.x - collision.overlap
+                        if(enemies[currentObject].currentAnimation != "attack"){
+                            enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
+                            }
+                            enemies[currentObject].currentAnimation = "attack"
+                            enemies[currentObject].facing = "left"
+                            if(player.currentAnimation != "hurt"){
+                            player.health = player.health - 1
+                            player.lastFacing = "right"
                         }
                         player.currentAnimation = "hurt"
+                    }
                     break
                 case "top":
-                    player.oldY = player.y
-                    player.y = player.y - collision.overlap
-                    player.yVelocity = 0
-                    if (player.oldY == player.y){
-                    player.canJump = true
+                    if(player.currentAnimation == "attacking"){
+                        console.log("tree")
+                    }else{
+                        player.oldY = player.y
+                        player.y = player.y - collision.overlap
+                        player.yVelocity = 0
+                        if (player.oldY == player.y){
+                            player.canJump = true
+                        }
                     }
                     break
             }
