@@ -224,6 +224,7 @@ var collision = []
             this.width = 19
             this.height = 17
             this.attackSize = 28
+            this.hurtSize = 18
             this.y = y
             this.turnLeft
             this.turnRight
@@ -232,47 +233,73 @@ var collision = []
             this.facing = "right"
             this.health = health
             this.attackFrame = 0
+            this.hurtFrame = 0
             this.runFrame = 0
+            this.speed = 3
             this.imageRunRight = new Image()
             this.imageRunLeft = new Image()
             this.imageAttackRight = new Image()
             this.imageAttackLeft = new Image()
+            this.imageHurtRight = new Image()
+            this.imageHurtLeft = new Image()
         }
         move(){
-            if (this.currentAnimation == "running"){
-            if(this.facing == "right"){
-                this.x = this.x + 3
-            }else if(this.facing == "left"){
-                this.x = this.x - 3
+            if(this.currentAnimation != "hurt"){
+                if (this.currentAnimation == "running"){
+                    if(this.facing == "right"){
+                        this.x = this.x + this.speed
+                    }else if(this.facing == "left"){
+                        this.x = this.x - this.speed
+                    }
+                }   
+                if(this.currentAnimation != "attack"){
+                    if(this.x + this.width * SCALE >= CANVASWIDTH){
+                        this.facing = "left"
+                    } else if(this.x <= 0){
+                        this.facing = "right"
+                    }
+                }
+            }else{
+                if(this.facing == "right"){
+                        this.x = this.x + this.speed * 2
+                }else{
+                    this.x = this.x - this.speed * 2
+                }
             }
-        }   
-            if(this.currentAnimation != "attack"){
-            if(this.x + this.width * SCALE >= CANVASWIDTH){
-                this.facing = "left"
-            } else if(this.x <= 0){
-                this.facing = "right"
-            }
-        }
         }
         animate(){
-            if(this.currentAnimation == "attack"){
+            switch(this.currentAnimation){
+                case "hurt":
+                    if(this.facing == "right"){
+                        ctx.drawImage(this.imageHurtRight, this.hurtFrame * this.hurtSize, 0,
+                            this.hurtSize, this.hurtSize, this.x, this.y, this.hurtSize * SCALE,
+                            this.hurtSize * SCALE)
+                        }else{
+                            ctx.drawImage(this.imageHurtLeft, this.hurtFrame * this.hurtSize, 0,
+                                this.hurtSize, this.hurtSize, this.x, this.y, this.hurtSize * SCALE,
+                                this.hurtSize * SCALE)
+                        }
+                break
+                case "attack":
+                    if(this.facing == "right"){
+                    ctx.drawImage(this.imageAttackRight, this.attackFrame * this.attackSize, 0,
+                        this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
+                        this.attackSize * SCALE)
+                    }else{
+                        ctx.drawImage(this.imageAttackLeft, this.attackFrame * this.attackSize, 0,
+                            this.attackSize, this.attackSize, this.x - 8, this.y - 22, this.attackSize * SCALE,
+                            this.attackSize * SCALE) 
+                    }
+                break
+            case "running":
                 if(this.facing == "right"){
-                ctx.drawImage(this.imageAttackRight, this.attackFrame * this.attackSize, 0,
-                    this.attackSize, this.attackSize, this.x, this.y - 22, this.attackSize * SCALE,
-                    this.attackSize * SCALE)
-                }else{
-                    ctx.drawImage(this.imageAttackLeft, this.attackFrame * this.attackSize, 0,
-                        this.attackSize, this.attackSize, this.x - 8, this.y - 22, this.attackSize * SCALE,
-                        this.attackSize * SCALE) 
-                }
-            }else if (this.currentAnimation == "running") {
-            if(this.facing == "right"){
-            ctx.drawImage(this.imageRunRight, this.width * this.runFrame, 0, 
-                this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
-            } else if (this.facing == "left"){
-                ctx.drawImage(this.imageRunLeft, this.width * enemies[currentObject].runFrame, 0, 
+                ctx.drawImage(this.imageRunRight, this.width * this.runFrame, 0, 
                     this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
-            }
+                } else{
+                    ctx.drawImage(this.imageRunLeft, this.width * enemies[currentObject].runFrame, 0, 
+                        this.width, this.height, this.x, this.y, this.width*SCALE, this.height*SCALE)
+                }
+            break
         }
         }
     }
@@ -349,6 +376,8 @@ enemies[currentObject].imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
 enemies[currentObject].imageRunLeft.src = "Sprites/03-Pig/Pig_Run_Left.png"
 enemies[currentObject].imageAttackRight.src = "Sprites/03-Pig/Pig_Attack_Right.png"
 enemies[currentObject].imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png"
+enemies[currentObject].imageHurtRight.src = "Sprites/03-Pig/Hurt_Right.png"
+enemies[currentObject].imageHurtLeft.src = "Sprites/03-Pig/Hurt_Left.png"
 currentObject++
 }
 //creates a new object
@@ -385,12 +414,24 @@ function animate(){
     if (enemies[currentObject].runFrame == 6){
     enemies[currentObject].runFrame = 0
     } 
-    if(enemies[currentObject].currentAnimation == "attack"){
+    if(enemies[currentObject].currentAnimation == "hurt"){
+        enemies[currentObject].hurtFrame++
+        if (enemies[currentObject].hurtFrame == 2 ){
+            console.log(enemies.length)
+            if(enemies[currentObject].health <= 0){    
+                enemies.splice(currentObject,1)
+                console.log(enemies.length)
+            }else{
+                enemies[currentObject].hurtFrame = 0
+                enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
+            }
+        }
+    }else if(enemies[currentObject].currentAnimation == "attack"){
         enemies[currentObject].attackFrame++
-    }
-    if (enemies[currentObject].attackFrame == 5 ){
-        enemies[currentObject].attackFrame = 0
-        enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
+        if (enemies[currentObject].attackFrame == 5 ){
+            enemies[currentObject].attackFrame = 0
+            enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
+        }
     }
     currentObject++
     }
@@ -426,21 +467,13 @@ function animate(){
         while(enemies.length > currentObject){
             enemies[currentObject].move()
             enemies[currentObject].animate()
-            //if(player.currentAnimation == "attacking"){
+            if(player.currentAnimation != "attacking"){
                 collision = boundingBox(player.x,player.y,player.width,player.height,
                     enemies[currentObject].x,enemies[currentObject].y,
                     enemies[currentObject].width * SCALE,enemies[currentObject].height)
-            /*}else{
-                collision = boundingBox(player.x - 30, player.y - 32,player.width,player.height,
-                    enemies[currentObject].x,enemies[currentObject].y,
-                    enemies[currentObject].width * SCALE,enemies[currentObject].height)
-                    //this.x - 30,this.y - 32, this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE
-                }*/
-            switch(collision.side){
+            
+                switch(collision.side){
                 case "right":
-                    if(player.currentAnimation == "attacking"){
-
-                    }else{
                     player.x = player.x + collision.overlap
                     if(enemies[currentObject].currentAnimation != "attack"){
                         enemies[currentObject].lastAnimation = enemies[currentObject].currentAnimation
@@ -452,11 +485,10 @@ function animate(){
                         player.lastFacing = "left"
                         }
                         player.currentAnimation = "hurt"
-                    }
                     break
                 case "left":
                     if(player.currentAnimation == "attacking"){
-
+                        enemies[currentObject].x = enemies[currentObject].x + 100
                     }else{
                         player.x = player.x - collision.overlap
                         if(enemies[currentObject].currentAnimation != "attack"){
@@ -473,7 +505,7 @@ function animate(){
                     break
                 case "top":
                     if(player.currentAnimation == "attacking"){
-                        console.log("tree")
+                        enemies[currentObject].health--
                     }else{
                         player.oldY = player.y
                         player.y = player.y - collision.overlap
@@ -483,6 +515,34 @@ function animate(){
                         }
                     }
                     break
+            }
+            }else{
+                switch(player.lastFacing){
+                    case "right":
+                        collision = boundingBox(player.x - 30, player.y - 32, player.animation.attack.frameWidth * SCALE,
+                            player.animation.attack.frameHeight * SCALE,
+                            enemies[currentObject].x, enemies[currentObject].y,
+                            enemies[currentObject].width * SCALE,enemies[currentObject].height)
+                    break
+                    case "left":
+                        collision = boundingBox(player.x - 76, player.y - 32, player.animation.attack.frameWidth * SCALE,
+                            player.animation.attack.frameHeight * SCALE,
+                            enemies[currentObject].x, enemies[currentObject].y,
+                            enemies[currentObject].width * SCALE,enemies[currentObject].height)
+                    break
+                }
+            if(collision.side != ""){
+                if(enemies[currentObject].currentAnimation != "hurt"){
+                    enemies[currentObject].currentAnimation = "hurt"
+                    enemies[currentObject].facing = player.lastFacing
+                    enemies[currentObject].health--
+                    if(enemies[currentObject].x > player.x){
+                            enemies[currentObject].facing = "right"
+                    }else if (enemies[currentObject].x < player.x){
+                        enemies[currentObject].facing = "left"
+                    }
+                }
+            }
             }
             currentObject++ 
         }
