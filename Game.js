@@ -416,11 +416,9 @@ function animate(){
     } 
     if(enemies[currentObject].currentAnimation == "hurt"){
         enemies[currentObject].hurtFrame++
-        if (enemies[currentObject].hurtFrame == 2 ){
-            console.log(enemies.length)
+        if (enemies[currentObject].hurtFrame == 4 ){
             if(enemies[currentObject].health <= 0){    
                 enemies.splice(currentObject,1)
-                console.log(enemies.length)
             }else{
                 enemies[currentObject].hurtFrame = 0
                 enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
@@ -577,8 +575,6 @@ function animate(){
         }
         player.animate()
         player.fall()
-        ctx.strokeStyle = "green"
-        ctx.strokeRect(player.x,player.y,player.width,player.height)
         requestAnimationFrame(RunScene)
     }
 
