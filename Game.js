@@ -13,7 +13,7 @@ window.onload=() => {
     var sKeyPressed = false
     var jumpKeyPressed = false
     var attackButtonPressed = false
-
+ 
 //variables for animaion
     var runFrame = 0
     var idleFrame = 0
@@ -466,7 +466,7 @@ function animate(){
         while(enemies.length > currentObject){
             enemies[currentObject].move()
             enemies[currentObject].animate()
-            if(player.currentAnimation != "attacking"){
+            if((player.currentAnimation != "attacking")&&(enemies[currentObject].currentAnimation != "hurt")){
                 collision = boundingBox(player.x,player.y,player.width,player.height,
                     enemies[currentObject].x,enemies[currentObject].y,
                     enemies[currentObject].width * SCALE,enemies[currentObject].height)
