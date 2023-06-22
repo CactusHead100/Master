@@ -23,6 +23,7 @@ window.onload=() => {
 var platforms = []
 var enemies = []
 var currentObject = 0
+var secondObject = 0
 var collision = []
 //Player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
@@ -261,9 +262,9 @@ var collision = []
                 }
             }else{
                 if(this.facing == "right"){
-                        this.x = this.x + this.speed * 2
+                        this.x = this.x + this.speed * 1.5
                 }else{
-                    this.x = this.x - this.speed * 2
+                    this.x = this.x - this.speed * 1.5
                 }
             }
         }
@@ -572,6 +573,31 @@ function animate(){
                 
         }
         currentObject++
+        }
+        currentObject = 0
+        secondObject = 0
+        while(currentObject < enemies.length){
+            while(secondObject < platforms.length){
+                collision = boundingBox(enemies[currentObject].x, enemies[currentObject].y,
+                    enemies[currentObject].width * SCALE, enemies[currentObject].height,
+                    platforms[secondObject].x, platforms[secondObject].y,
+                    platforms[secondObject].width, platforms[secondObject].height)
+                console.log(currentObject,secondObject,enemies.length,platforms.length)
+                switch(collision.side){
+                    case "right":
+                        enemies[currentObject].x = enemies[currentObject].x + collision.overlap
+                        enemies[currentObject].facing = "right"
+                    break
+                    case "left":
+                        enemies[currentObject].x = enemies[currentObject].x - collision.overlap
+                        enemies[currentObject].facing = "left"
+                    break
+                }
+                secondObject++
+            }
+                currentObject++
+                secondObject = 0
+ 
         }
         player.animate()
         player.fall()
