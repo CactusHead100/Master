@@ -21,4 +21,4 @@ function boundingBox(rect1X,rect1Y,rect1Width,rect1Height,rect2X,rect2Y,rect2Wid
                 }
         }
     return {"side":"","overlap":0}
-    }   
+    }

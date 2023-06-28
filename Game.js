@@ -1,7 +1,7 @@
 window.onload=() => {
     var c = document.getElementById("canvas")
     var ctx = c.getContext("2d")
-
+    
     const CANVASWIDTH = 832
     const CANVASHEIGHT = 640
     const SCALE = 2
@@ -599,6 +599,7 @@ function animate(){
                 secondObject = 0
  
         }
+        console.log(level("1",39))
         player.animate()
         player.fall()
         requestAnimationFrame(RunScene)
