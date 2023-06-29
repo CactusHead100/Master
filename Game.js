@@ -6,7 +6,19 @@ window.onload=() => {
     const CANVASHEIGHT = 640
     const SCALE = 2
     const GRAVITY = 1.25
-
+//vairables for drawing the levels
+    const TILESIZE = 32
+    var platformsDrawn = false
+    var currentLevel = 1
+    var tileX = 0
+    var tileY = 0
+    var tilesDrawn = 0
+    var tileSpriteLocation
+    var tileSpriteLocationX
+    var tileSpriteLocationY
+//file location of the tile sheet
+    var background = new Image()
+    background.src = "Sprites/14-TileSets/Terrain (32x32) With Space.png"
 //vairables for movement and attack
     var aKeyPressed = false
     var dKeyPressed = false
@@ -20,19 +32,19 @@ window.onload=() => {
     var attackFrame = 0
     var hurtFrame = 0
 //variables to let me do collision with each of specified object
-var platforms = []
-var enemies = []
-var currentObject = 0
-var secondObject = 0
-var collision = []
+    var platforms = []
+    var enemies = []
+    var currentObject = 0
+    var secondObject = 0
+    var collision = []
 //Player object with x,y,width,height, viarables for jumping and also some properties for its hammer
     class Player{
 //Holds all the variables for the player
         constructor(){
 //These are used for the player hitbox and the animation is base of these 
 //but also includes the hammer dimensions so that all frames draw reletive to each other
-            this.x = 0
-            this.y = 0
+            this.x = 100
+            this.y = 100
             this.width = 21 * SCALE
             this.height
 //Used to make player jump and reset the jump
@@ -370,7 +382,7 @@ player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 //creates a new enemy
-enemies.push(new Enemy(CANVASWIDTH-38,CANVASHEIGHT-34,3),new Enemy(0,CANVASHEIGHT-34,3))
+enemies.push(new Enemy(600,100,3),new Enemy(100,100,3))
 currentObject = 0
 while(enemies.length > currentObject){
 enemies[currentObject].imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
@@ -382,7 +394,7 @@ enemies[currentObject].imageHurtLeft.src = "Sprites/03-Pig/Hurt_Left.png"
 currentObject++
 }
 //creates a new object
-platforms =[new Platform(100, 550, 100, 260, false), new Platform(300, 500,100,26)]
+//platforms =[new Platform(100, 550, 100, 260, false), new Platform(300, 500,100,26)]
 //changes the fps of the players animations
 setInterval(animate,100)
 function animate(){
@@ -437,10 +449,31 @@ function animate(){
 }
 //runs the level (or scene whatever you want to call it)
     function RunScene(){
+ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
+//draws the level
+tileX = 0
+tileY = 0
+tilesDrawn = 0
+while(tileY < CANVASHEIGHT){
+    while(tileX< CANVASWIDTH){
+        tileSpriteLocation = drawLevel(currentLevel,tilesDrawn)
+        tileSpriteLocationX = tileSpriteLocation.x
+        tileSpriteLocationY = tileSpriteLocation.y
+        if((tileSpriteLocation.y < 6)&&(platformsDrawn == false)){
+            platforms.push(new Platform (tileX,tileY,TILESIZE * SCALE,TILESIZE * SCALE))
+        }
+        ctx.drawImage(background, TILESIZE * tileSpriteLocationX, TILESIZE * tileSpriteLocationY,
+            TILESIZE, TILESIZE, tileX, tileY, TILESIZE * SCALE, TILESIZE * SCALE)
+        tileX = tileX + TILESIZE * SCALE
+        tilesDrawn++
+    }
+    tileX = 0
+    tileY = tileY + TILESIZE * SCALE
+}
+platformsDrawn = true
 //clears the canvas allowing animations to look clean and not have after images 
-        ctx.fillStyle = "black"
-        ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
-        ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
+        //ctx.fillStyle = "black"
+        //ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //trigers all key pressed related things 
         if (jumpKeyPressed & player.canJump){
             player.jump()
@@ -582,7 +615,6 @@ function animate(){
                     enemies[currentObject].width * SCALE, enemies[currentObject].height,
                     platforms[secondObject].x, platforms[secondObject].y,
                     platforms[secondObject].width, platforms[secondObject].height)
-                console.log(currentObject,secondObject,enemies.length,platforms.length)
                 switch(collision.side){
                     case "right":
                         enemies[currentObject].x = enemies[currentObject].x + collision.overlap
@@ -599,7 +631,7 @@ function animate(){
                 secondObject = 0
  
         }
-        console.log(level("1",39))
+        console.log(drawLevel(1,2))
         player.animate()
         player.fall()
         requestAnimationFrame(RunScene)

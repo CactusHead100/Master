@@ -2,17 +2,15 @@ var level1 = [7.1,2.3,2.3,2.3,2.3,2.3,2.3,2.3,2.3,2.3,2.3,2.3,8.1,3.2,1.7,2.7,2.
 var currentTile
 var drawTile
 
-function level(level,tile){
-    console.log(level,tile)
-switch(level){
+function drawLevel(levelNumber,tile){
+switch(levelNumber.toString()){
     case "1":
         currentTile = level1[tile].toString()
         drawTile = currentTile.split(".")
         return {"x":drawTile[0],"y":drawTile[1]}
-    break
-    case "1":
-        currentTile = level1[tile].toString()
+    case "2":
+        currentTile = level2[tile].toString()
         drawTile = currentTile.split(".")
-    break
+        return {"x":drawTile[0],"y":drawTile[1]}
 }
 }
