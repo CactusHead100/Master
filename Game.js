@@ -9,16 +9,17 @@ window.onload=() => {
 //vairables for drawing the levels
     const TILESIZE = 32
     var platformsDrawn = false
-    var currentLevel = 1
+    var currentLevel = 3
     var tileX = 0
     var tileY = 0
     var tilesDrawn = 0
     var tileSpriteLocation
     var tileSpriteLocationX
     var tileSpriteLocationY
+    var connecter
 //file location of the tile sheet
     var background = new Image()
-    background.src = "Sprites/14-TileSets/Terrain (32x32) With Space.png"
+    background.src = "Sprites/14-TileSets/Terrain (32x32).png"
 //vairables for movement and attack
     var aKeyPressed = false
     var dKeyPressed = false
@@ -325,10 +326,6 @@ window.onload=() => {
             this.height = height
             this.jumpThrough = jumpThrough
         }
-        draw(){
-            ctx.fillStyle = "blue"
-            ctx.fillRect(this.x,this.y,this.width,this.height)
-        }
     }
 
 //Bomb blows up and damages player
@@ -456,7 +453,9 @@ tileY = 0
 tilesDrawn = 0
 while(tileY < CANVASHEIGHT){
     while(tileX< CANVASWIDTH){
-        tileSpriteLocation = drawLevel(currentLevel,tilesDrawn)
+        connecter = ["level",currentLevel]
+        tileSpriteLocation = drawLevel(connecter.join(""),tilesDrawn)
+        console.log(connecter.join(""))
         tileSpriteLocationX = tileSpriteLocation.x
         tileSpriteLocationY = tileSpriteLocation.y
         if((tileSpriteLocation.y < 6)&&(platformsDrawn == false)){
@@ -580,7 +579,6 @@ platformsDrawn = true
         }
         currentObject = 0
         while(currentObject<platforms.length){
-        platforms[currentObject].draw()
         collision = boundingBox(player.x,player.y,player.width,player.height,
             platforms[currentObject].x, platforms[currentObject].y,
             platforms[currentObject].width, platforms[currentObject].height)
