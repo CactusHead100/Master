@@ -6,9 +6,7 @@ var currentTile
 var drawTile
 
 function drawLevel(levelNumber,tile){
-    console.log("tile = "+tile)
     currentTile = levels[levelNumber][tile].toString()
-    //console.log(currentTile.split("."))
     drawTile = currentTile.split(".")
     return {"x":drawTile[0],"y":drawTile[1]}
 }

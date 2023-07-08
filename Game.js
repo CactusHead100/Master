@@ -584,9 +584,16 @@ platformsDrawn = true
         switch(collision.side){
             case "right":
                 player.x = player.x + collision.overlap
+//after i got some classmates to test my game a unanimous thing that they all didn't really like
+//that there was no player friction on the corners of platforms I added this line to force make 
+//parkouring a tiny bit harder and give the game a better feel as before you could just press jump 
+//when running at a platform and always make the jump if you could now you need to be a tad more precise
+                player.yVelocity = player.yVelocity - 0.5 
                 break
             case "left":
-                player.x = player.x - collision.overlap
+                player.x = player.x - collision.overlap 
+//same here
+                player.yVelocity = player.yVelocity - 0.5
                 break
             case "top":
                 player.oldY = player.y
