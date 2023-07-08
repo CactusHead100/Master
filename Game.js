@@ -9,6 +9,7 @@ window.onload=() => {
 //vairables for drawing the levels
     const TILESIZE = 32
     var platformsDrawn = false
+    var inLevel = true
     var currentLevel = 3
     var tileX = 0
     var tileY = 0
@@ -453,9 +454,7 @@ tileY = 0
 tilesDrawn = 0
 while(tileY < CANVASHEIGHT){
     while(tileX< CANVASWIDTH){
-        connecter = ["level",currentLevel]
-        tileSpriteLocation = drawLevel(connecter.join(""),tilesDrawn)
-        console.log(connecter.join(""))
+        tileSpriteLocation = drawLevel(currentLevel - 1,tilesDrawn)
         tileSpriteLocationX = tileSpriteLocation.x
         tileSpriteLocationY = tileSpriteLocation.y
         if((tileSpriteLocation.y < 6)&&(platformsDrawn == false)){
@@ -632,7 +631,9 @@ platformsDrawn = true
         console.log(drawLevel(1,2))
         player.animate()
         player.fall()
+        if(inLevel){
         requestAnimationFrame(RunScene)
+        }
     }
 
 RunScene()
