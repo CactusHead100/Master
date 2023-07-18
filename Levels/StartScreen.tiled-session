@@ -1,0 +1,26 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+    },
+    "last.imagePath": "C:/Users/Koen/Documents/JavaScript/SchoolWork/NCEA_LVL_1/Sprites/08-Box",
+    "map.height": 10,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 13,
+    "openFiles": [
+    ],
+    "project": "StartScreen.tiled-project",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 22
+    }
+}
