@@ -227,64 +227,71 @@ window.onload=() => {
             ctx.drawImage(this.imageHearts, this.animation.hearts.frameWidth * runFrame, 0, 
                 this.animation.hearts.frameWidth/6 * this.health, this.animation.hearts.frameHeight, 40, 36,
                 this.animation.hearts.frameWidth/6 * this.health * SCALE, 14)
-            if(this.currentAnimation == "hurt"){
-                this.height = this.animation.hurt.height * SCALE    
-                if(this.lastFacing == "right"){
-                    ctx.drawImage(this.imageHurtRight, this.animation.hurt.frameWidth * hurtFrame,
-                        0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.headWidth,
-                        this.y, this.animation.hurt.frameWidth * SCALE, this.height)
-                }else if(this.lastFacing == "left"){
-                    ctx.drawImage(this.imageHurtLeft, this.animation.hurt.frameWidth * hurtFrame,
-                        0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.handleWidth,
-                        this.y, this.animation.hurt.frameWidth * SCALE, this.height)
-                }
-            }else if (this.currentAnimation == "attacking"){
-                this.height = this.animation.attack.height * SCALE
-                if(this.lastFacing == "right"){
-                    ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
-                        0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 30,this.y - 32,
-                        this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
-                } else if(this.lastFacing == "left"){
-                    ctx.drawImage(this.imageAttackLeft, attackFrame * this.animation.attack.frameWidth,
-                        0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 76,this.y - 32,
-                        this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
-                }
-            }else if (this.currentAnimation == "jump"){
-                this.height = 58
-                if(this.lastFacing == "right"){
-                    ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
-                        74 ,this.height)
-                } else {
-                    ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
-                        74 ,this.height)   
-                }
-            }else if (this.currentAnimation == "runRight"){
-                this.height = this.animation.runRight.height * SCALE
-                ctx.drawImage(this.imageRunRight, this.animation.runRight.frameWidth * runFrame,
-                    0, this.animation.runRight.frameWidth, 
-                    this.animation.runRight.height, this.x - this.hammer.headWidth, this.y, 
-                    this.width + this.hammer.totlaWidth, this.height)
-            }else if (this.currentAnimation == "runLeft"){
-                this.height = SCALE * this.animation.runLeft.height
-                ctx.drawImage(this.imageRunLeft, this.animation.runLeft.frameWidth * runFrame,
-                    0, this.animation.runLeft.frameWidth, 
-                    this.animation.runLeft.height, this.x - this.hammer.handleWidth,
-                    this.y, this.width + this.hammer.totlaWidth, this.height)
-            }else if (this.currentAnimation == "idle"){
-                if (this.lastFacing == "left"){
-                    this.height = SCALE * this.animation.idleLeft.height
-                    ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.frameWidth * idleFrame,
-                        0, this.animation.idleLeft.frameWidth, 
-                        this.animation.idleLeft.height, this.x - this.hammer.handleWidth,
+                switch(this.currentAnimation){
+                    case"hurt":
+                        this.height = this.animation.hurt.height * SCALE    
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageHurtRight, this.animation.hurt.frameWidth * hurtFrame,
+                                0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.headWidth,
+                                this.y, this.animation.hurt.frameWidth * SCALE, this.height)
+                        }else if(this.lastFacing == "left"){
+                            ctx.drawImage(this.imageHurtLeft, this.animation.hurt.frameWidth * hurtFrame,
+                                0, this.animation.hurt.frameWidth, this.animation.hurt.height, this.x - this.hammer.handleWidth,
+                                this.y, this.animation.hurt.frameWidth * SCALE, this.height)
+                        }
+                    break
+                    case"attacking":
+                        this.height = this.animation.attack.height * SCALE
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageAttackRight, attackFrame * this.animation.attack.frameWidth,
+                                0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 30,this.y - 32,
+                                this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
+                        } else if(this.lastFacing == "left"){
+                            ctx.drawImage(this.imageAttackLeft, attackFrame * this.animation.attack.frameWidth,
+                                0,this.animation.attack.frameWidth,this.animation.attack.frameHeight,this.x - 76,this.y - 32,
+                                this.animation.attack.frameWidth * SCALE, this.animation.attack.frameHeight * SCALE)
+                        }
+                    break
+                    case"jump":
+                        this.height = 58
+                        if(this.lastFacing == "right"){
+                            ctx.drawImage(this.imageJumpRight, 0, 0, 37, 29, this.x - this.hammer.headWidth, this.y, 
+                                74 ,this.height)
+                        }else{
+                            ctx.drawImage(this.imageJumpLeft, 0, 0, 37, 29, this.x - this.hammer.handleWidth, this.y, 
+                                74 ,this.height)   
+                        }
+                    break
+                    case"runRight":
+                        this.height = this.animation.runRight.height * SCALE
+                        ctx.drawImage(this.imageRunRight, this.animation.runRight.frameWidth * runFrame,
+                            0, this.animation.runRight.frameWidth, 
+                        this.animation.runRight.height, this.x - this.hammer.headWidth, this.y, 
+                        this.width + this.hammer.totlaWidth, this.height)
+                    break
+                    case"runLeft":
+                        this.height = SCALE * this.animation.runLeft.height
+                        ctx.drawImage(this.imageRunLeft, this.animation.runLeft.frameWidth * runFrame,
+                            0, this.animation.runLeft.frameWidth, 
+                        this.animation.runLeft.height, this.x - this.hammer.handleWidth,
                         this.y, this.width + this.hammer.totlaWidth, this.height)
-                }else {
-                    this.height = SCALE * this.animation.idleRight.height
-                    ctx.drawImage(this.imageIdleRight, this.animation.idleLeft.frameWidth * idleFrame,
-                        0, this.animation.idleRight.frameWidth, 
-                        this.animation.idleRight.height, this.x - this.hammer.headWidth,
-                        this.y, this.width + this.hammer.totlaWidth, this.height)
+                    break
+                    case"idle":
+                        if (this.lastFacing == "left"){
+                            this.height = SCALE * this.animation.idleLeft.height
+                            ctx.drawImage(this.imageIdleLeft, this.animation.idleLeft.frameWidth * idleFrame,
+                                0, this.animation.idleLeft.frameWidth, 
+                                this.animation.idleLeft.height, this.x - this.hammer.handleWidth,
+                                this.y, this.width + this.hammer.totlaWidth, this.height)
+                        }else {
+                            this.height = SCALE * this.animation.idleRight.height
+                            ctx.drawImage(this.imageIdleRight, this.animation.idleLeft.frameWidth * idleFrame,
+                                0, this.animation.idleRight.frameWidth, 
+                                this.animation.idleRight.height, this.x - this.hammer.headWidth,
+                                this.y, this.width + this.hammer.totlaWidth, this.height)
+                        }
+                    break
                 }
-            }
         }
     }
 //
