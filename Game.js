@@ -12,7 +12,7 @@ window.onload=() => {
     const TILESIZE = 32
     var platformsDrawn = false
     var inLevel = false
-    var currentLevel = 3
+    var currentLevel = 1
     var tileX = 0
     var tileY = 0
     var tilesDrawn = 0
@@ -25,21 +25,22 @@ window.onload=() => {
     const STARTSCREEN = new Image()
     const STORYSCREEN = new Image()
     const MENUSCREEN = new Image()
-    const CONTROLSCREENBACKGROUND = new Image()
+    const CONTROLSCREEN = new Image()
     const RIGHTBUTTON = new Image()
     const LEFTBUTTON = new Image()
-    const buttonsYposition = CANVASHEIGHT-TILESIZE*SCALE
-    const rightButtonX = 640
-    const leftButtonX = 128
+    var buttonsYposition = CANVASHEIGHT-TILESIZE*SCALE
+    var rightButtonX = 640
+    var leftButtonX = 128
     STARTSCREEN.src = "Levels/StartScreen.png"
     STORYSCREEN.src = "Levels/StoryLine.png"
-    CONTROLSCREENBACKGROUND.src = "Levels/ControlsScreen.png"
+    CONTROLSCREEN.src = "Levels/Controls_Animation.png"
     RIGHTBUTTON.src= "Sprites/Buttons&UI/Right_Button.png"
     LEFTBUTTON.src = "Sprites/Buttons&UI/Left_Button.png"
     var mouseX
     var mouseY
     var clickPopUpTimer
     var storySlide = 0
+    var controlsAnimation = 0
 //
 //file location of the tile sheet
 //
@@ -86,7 +87,7 @@ window.onload=() => {
 //Used to make player jump and reset the jump
 //
             this.oldY 
-            this.xVelocity = 9
+            this.xVelocity = 7
             this.yVelocity = 0
             this.canJump = true
             this.health = 6
@@ -439,7 +440,7 @@ player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 //creates a new enemy
-enemies.push(new Enemy(600,100,3),new Enemy(100,100,3))
+function DefineEnemies(){
 currentObject = 0
 while(enemies.length > currentObject){
 enemies[currentObject].imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
@@ -449,6 +450,7 @@ enemies[currentObject].imageAttackLeft.src = "Sprites/03-Pig/Pig_Attack_Left.png
 enemies[currentObject].imageHurtRight.src = "Sprites/03-Pig/Hurt_Right.png"
 enemies[currentObject].imageHurtLeft.src = "Sprites/03-Pig/Hurt_Left.png"
 currentObject++
+}
 }
 
 /***********************************************************************
@@ -464,7 +466,7 @@ Outout
 ***********************************************************************/
 setInterval(animate,100)
 function animate(){
-    runFrame = runFrame + 1
+    runFrame += 1
     if (runFrame == 8 ){
         runFrame = 0
     }
@@ -473,7 +475,7 @@ function animate(){
         idleFrame = 0
     }
     if(player.currentAnimation == "attacking"){
-    attackFrame = attackFrame + 1
+    attackFrame += 1
     }
     if (attackFrame == 2 ){
         attackFrame = 0
@@ -481,11 +483,15 @@ function animate(){
         attackButtonPressed = false
     }
     if(player.currentAnimation == "hurt"){
-        hurtFrame = hurtFrame + 1
+        hurtFrame += 1
         }
     if (hurtFrame == 4 ){
         hurtFrame = 0
         player.currentAnimation = player.lastAnimation
+    }
+    controlsAnimation = controlsAnimation + 1
+    if(controlsAnimation == 10){
+        controlsAnimation = 0
     }
     currentObject = 0
     while(currentObject<enemies.length){
@@ -712,10 +718,10 @@ function RunScene(){
         player.fall()
         if(inLevel){
         requestAnimationFrame(RunScene)
+        }else{
+            menus()
         }
     }
-
-RunScene()
 
 //moves player left and right based off key pressed and stops them aswell
 addEventListener("keydown", keyPressed)
@@ -757,6 +763,8 @@ addEventListener("keyup", keyReleased)
     }
 currentScreen = "start"
     function menus(){
+        console.log(currentScreen)
+        ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         switch(currentScreen){
             case"lvls":
             break
@@ -771,6 +779,9 @@ currentScreen = "start"
             ctx.drawImage(RIGHTBUTTON,0,0,TILESIZE,TILESIZE,rightButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
             break
             case"instructions":
+                ctx.drawImage(CONTROLSCREEN,controlsAnimation * CANVASWIDTH/SCALE,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
+                ctx.drawImage(LEFTBUTTON,0,0,TILESIZE,TILESIZE,leftButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
+                ctx.drawImage(RIGHTBUTTON,0,0,TILESIZE,TILESIZE,rightButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
             break
         }
         if(inLevel == false){
@@ -783,7 +794,7 @@ addEventListener("mousedown", mouseClicked)
 
     function mouseClicked(mouseDown){
         var mouseClicked = mouseDown.button
-        if(inLevel){
+        if(inLevel == true){
             if ((mouseClicked == 0)&&(player.currentAnimation != "attacking")){
                 attackButtonPressed = true
             }
@@ -793,29 +804,39 @@ addEventListener("mousedown", mouseClicked)
                     currentScreen = "story" 
                 break
                 case"story":
-                console.log(storySlide)
-                    if((mouseX > rightButtonX)&&
-                    (mouseX < rightButtonX + TILESIZE * SCALE)&&
-                    (mouseY > buttonsYposition)&&
-                    (mouseY < CANVASHEIGHT)){
-                        if(storySlide < 4){
+                    collision = mouseCollision(mouseX,mouseY,rightButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)
+                    if(collision){
+                        if(storySlide < 3){
                             storySlide++
                         }else{
-                            currentScreen = "start"
-                            storySlide = 0
+                            console.log(storySlide)
+                            currentScreen = "instructions"
+                            rightButtonX = 704
+                            leftButtonX = 64
+                            buttonsYposition = 512
                         }
-                    }else if((mouseX > leftButtonX)&&
-                        (mouseX < leftButtonX + TILESIZE * SCALE)&&
-                        (mouseY > buttonsYposition)&&
-                        (mouseY < CANVASHEIGHT)){
-                        if(storySlide > 0){
-                            storySlide = storySlide - 1
+                    }else{
+                        collision = mouseCollision(mouseX,mouseY,leftButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)
+                        if(collision){
+                            if(storySlide > 0){
+                                storySlide = storySlide - 1
+                            }else{
+                                currentScreen = "start"
+                            }
                         }
                     }
                 break
             }
         }
     }
+    /*
+    currentScreen = "start"
+                            inLevel = true
+                            currentLevel = 1
+                            enemies.push(new Enemy(64,CANVASHEIGHT - 34 - TILESIZE * SCALE,3),new Enemy(100,100,3))
+                            DefineEnemies()
+                            RunScene()
+                            */
     window.addEventListener('mousemove', mouseMoved)
 
     function mouseMoved(mouseEvent){
