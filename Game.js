@@ -38,7 +38,6 @@ window.onload=() => {
     LEFTBUTTON.src = "Sprites/Buttons&UI/Left_Button.png"
     var mouseX
     var mouseY
-    var clickPopUpTimer
     var storySlide = 0
     var controlsAnimation = 0
 //
@@ -51,7 +50,6 @@ window.onload=() => {
 //
     var aKeyPressed = false
     var dKeyPressed = false
-    var sKeyPressed = false
     var jumpKeyPressed = false
     var attackButtonPressed = false
 //
@@ -74,13 +72,13 @@ window.onload=() => {
 //
 //Holds all the variables for the player
 //
-        constructor(){
+        constructor(x,y){
 //
 //These are used for the player hitbox, and the animation is based of these 
 //but also includes the hammer dimensions so that all frames draw reletive to each other
 //
-            this.x = 100
-            this.y = 100
+            this.x = x
+            this.y = y
             this.width = 21 * SCALE
             this.height
 //
@@ -378,7 +376,9 @@ window.onload=() => {
         }
         }
     }
+//
 //a platform class with x,y,width,height and jump through properties as well as collision
+//
     class Platform{
         constructor(x,y,width,height,jumpThrough){
             this.x = x
@@ -389,44 +389,22 @@ window.onload=() => {
         }
     }
 
-//Bomb blows up and damages player
-/*class Bomb{
-    constructor(){
-        this.centerX = 300
-        this.centerY = 500
-        this.radius = 10
-        this.fillStyle = "black"
-        this.collidingSideX
-        this.collidingSideY
-    }
-    draw(){
-        ctx.fillStyle = this.fillStyle
-        ctx.arc(this.centerX,this.centerY, this.radius*2 , 0, 2*Math.PI) 
-        ctx.fill()
-    }
-    collidingWithPlayer(){
-        if (this.centerX < player.x){
-            this.collidingSideX = player.x
-        } else if (this.centerX > player.x + player.width*2){
-            this.collidingSideX = player.x + player.width*2
-        }
-        if(this.centerY < player.y){
-            this.collidingSideY = player.y
-        } else if (this.centerY > player.y + player.height){
-            this.collidingSideY = player.y + player.height
-        }
-        var distanceX = this.centerX - this.collidingSideX
-        var distanceY = this.centerY - this.collidingSideY
-        var distance = Math.sqrt((distanceX*distanceX)+(distanceY*distanceY))
-        if (distance <= this.radius*2){
-        } else {
-            console.log(distance)
-            
+    class Door{
+//
+//
+//
+        constructor(x,y){
+            this.x = x
+            this.y = y
+            this.width = 46
+            this.height = 56
+            this.idleDoor = new Image()
+            this.doorOpening = new Image()
         }
     }
-}*/
 //creates a new player and underneath has all the sources for the image files used to animate the character
 var player = new Player()
+function definePlayer(){
 player.imageRunRight.src = "Sprites/01-King Human/Run_Right.png"
 player.imageRunLeft.src = "Sprites/01-King Human/Run_Left.png"
 player.imageIdleRight.src = "Sprites/01-King Human/Idle_Right.png"
@@ -439,8 +417,9 @@ player.imageHurtRight.src = "Sprites/01-King Human/Hurt_Right.png"
 player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
-//creates a new enemy
-function DefineEnemies(){
+}
+//defines the images after the enemies are created
+function defineEnemies(){
 currentObject = 0
 while(enemies.length > currentObject){
 enemies[currentObject].imageRunRight.src = "Sprites/03-Pig/Pig_Run_Right.png"
@@ -466,6 +445,11 @@ Outout
 ***********************************************************************/
 setInterval(animate,100)
 function animate(){
+//
+//timers for animating the player
+//I have a timer for each so its easy to debug and see which are linked
+//i.e. runFrame timer controls the player running
+//
     runFrame += 1
     if (runFrame == 8 ){
         runFrame = 0
@@ -489,40 +473,54 @@ function animate(){
         hurtFrame = 0
         player.currentAnimation = player.lastAnimation
     }
+//
+//timer for the animation seen at the beggining of the game where you are shown the controls and
+//what they do
+//
     controlsAnimation = controlsAnimation + 1
     if(controlsAnimation == 10){
         controlsAnimation = 0
     }
+//
+//timers for enemy animations 
+//I use while statements so the timers apply for each enemy
+//
     currentObject = 0
     while(currentObject<enemies.length){
-    enemies[currentObject].runFrame = enemies[currentObject].runFrame + 1
-    if (enemies[currentObject].runFrame == 6){
-    enemies[currentObject].runFrame = 0
-    } 
-    if(enemies[currentObject].currentAnimation == "hurt"){
-        enemies[currentObject].hurtFrame++
-        if (enemies[currentObject].hurtFrame == 4 ){
-            if(enemies[currentObject].health <= 0){    
-                enemies.splice(currentObject,1)
-            }else{
-                enemies[currentObject].hurtFrame = 0
+        enemies[currentObject].runFrame = enemies[currentObject].runFrame + 1
+        if (enemies[currentObject].runFrame == 6){
+            enemies[currentObject].runFrame = 0
+        } 
+        if(enemies[currentObject].currentAnimation == "hurt"){
+            enemies[currentObject].hurtFrame++
+            if (enemies[currentObject].hurtFrame == 4 ){
+                if(enemies[currentObject].health <= 0){ 
+//
+//got this from w3schools.com as the delete function brought about errors as it replaced the 
+//enemy in the array with unidentified but with this splice it completly removes it allowing me
+//to add and remove enemies at will
+//   
+                    enemies.splice(currentObject,1)
+                }else{
+                    enemies[currentObject].hurtFrame = 0
+                    enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
+                }
+            }
+        }else if(enemies[currentObject].currentAnimation == "attack"){
+            enemies[currentObject].attackFrame++
+            if (enemies[currentObject].attackFrame == 5 ){
+                enemies[currentObject].attackFrame = 0
                 enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
             }
         }
-    }else if(enemies[currentObject].currentAnimation == "attack"){
-        enemies[currentObject].attackFrame++
-        if (enemies[currentObject].attackFrame == 5 ){
-            enemies[currentObject].attackFrame = 0
-            enemies[currentObject].currentAnimation = enemies[currentObject].lastAnimation
-        }
-    }
-    currentObject++
+        currentObject++
     }
 }
 
-
-//runs the level (or scene whatever you want to call it)
-function RunScene(){
+//
+//runs the levels (or scene whatever you want to call it)
+//
+function runScene(){
     ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
     ctx.fillStyle = "#3FFF51"
     ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
@@ -717,7 +715,7 @@ function RunScene(){
         player.animate()
         player.fall()
         if(inLevel){
-        requestAnimationFrame(RunScene)
+        requestAnimationFrame(runScene)
         }else{
             menus()
         }
@@ -728,17 +726,16 @@ addEventListener("keydown", keyPressed)
 
     function keyPressed(keyDown){
         var keyPressed = keyDown.key
-        if ((keyPressed == "a")||(keyPressed == "A")){
-            aKeyPressed = true
-        }
-        if ((keyPressed == "d")||(keyPressed == "D")){
-            dKeyPressed = true
-        }
-        if ((keyPressed == "s")||(keyPressed == "S")){
-            sKeyPressed = true
-        }
-        if (keyPressed == " "){
-            jumpKeyPressed = true
+        if(inLevel){
+            if ((keyPressed == "a")||(keyPressed == "A")){
+                aKeyPressed = true
+            }
+            if ((keyPressed == "d")||(keyPressed == "D")){
+                dKeyPressed = true
+            }
+            if (keyPressed == " "){
+                jumpKeyPressed = true
+            }
         }
     }
 
@@ -771,12 +768,12 @@ currentScreen = "start"
             case"pause":
             break
             case"start":
-            ctx.drawImage(STARTSCREEN,0,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
+                ctx.drawImage(STARTSCREEN,0,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
             break
             case"story":
-            ctx.drawImage(STORYSCREEN,storySlide * CANVASWIDTH/SCALE,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
-            ctx.drawImage(LEFTBUTTON,0,0,TILESIZE,TILESIZE,leftButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
-            ctx.drawImage(RIGHTBUTTON,0,0,TILESIZE,TILESIZE,rightButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
+                ctx.drawImage(STORYSCREEN,storySlide * CANVASWIDTH/SCALE,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
+                ctx.drawImage(LEFTBUTTON,0,0,TILESIZE,TILESIZE,leftButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
+                ctx.drawImage(RIGHTBUTTON,0,0,TILESIZE,TILESIZE,rightButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
             break
             case"instructions":
                 ctx.drawImage(CONTROLSCREEN,controlsAnimation * CANVASWIDTH/SCALE,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
@@ -826,17 +823,24 @@ addEventListener("mousedown", mouseClicked)
                         }
                     }
                 break
+                case"instructions":
+                collision = mouseCollision(mouseX,mouseY,rightButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)
+                if(collision){
+                    player = new Player(96,448)
+                    definePlayer()
+                    inLevel = true
+                    runScene()
+                }else {
+                    collision = mouseCollision(mouseX,mouseY,leftButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)                    
+                    if(collision){
+                        currentScreen = "story"
+                        storySlide = 0
+                    }
+                }
+                break
             }
         }
     }
-    /*
-    currentScreen = "start"
-                            inLevel = true
-                            currentLevel = 1
-                            enemies.push(new Enemy(64,CANVASHEIGHT - 34 - TILESIZE * SCALE,3),new Enemy(100,100,3))
-                            DefineEnemies()
-                            RunScene()
-                            */
     window.addEventListener('mousemove', mouseMoved)
 
     function mouseMoved(mouseEvent){
