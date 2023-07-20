@@ -3,20 +3,48 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "StartScreen.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "Background.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Box.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Decor.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "StartScreen.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 66.66666666666669,
+                "y": 222
+            }
+        }
     },
     "last.imagePath": "C:/Users/Koen/Documents/JavaScript/SchoolWork/NCEA_LVL_1/Sprites/08-Box",
     "map.height": 10,
     "map.lastUsedFormat": "tmx",
     "map.width": 13,
     "openFiles": [
+        "StartScreen.tmx",
+        "Background.tsx",
+        "Decor.tsx",
+        "Box.tsx"
     ],
     "project": "StartScreen.tiled-project",
     "recentFiles": [
+        "Box.tsx",
+        "Decor.tsx",
+        "Background.tsx",
+        "StartScreen.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
