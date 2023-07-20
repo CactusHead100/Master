@@ -70,7 +70,7 @@ window.onload=() => {
 
     class Player{
 //
-//Holds all the variables for the player
+//Allows me to set the x and y position of player when I create it
 //
         constructor(x,y){
 //
@@ -398,18 +398,34 @@ window.onload=() => {
 
     class Door{
 //
-//
+//contains all viarables for the door very similar to the enemy and player
 //
         constructor(x,y){
             this.x = x
             this.y = y
             this.width = 46
             this.height = 56
-            this.idleDoor = new Image()
-            this.doorOpening = new Image()
+            this.opening = false
+            this.openingFrame = 0
+//
+//images which are sourced using defineDoor function 
+//I source them this way so i can create and delete doors and still be able to source them
+//
+            this.imageIdle = new Image()
+            this.imageOpening = new Image()
+        }
+        drawDoor(){
+            if(this.opening){
+                ctx.drawImage(this.imageOpening,this.width * this.openingFrame,0,this.width,this.height,this.x,this.y,this.width * SCALE, this.height * SCALE)
+            }else{
+                ctx.drawImage(this.imageIdle,0,0,this.width,this.height,this.x,this.y,this.width * SCALE, this.height * SCALE)
+            }
         }
     }
-//creates a new player and underneath has all the sources for the image files used to animate the character
+//
+//creates a new player and underneath has a function that sources all the image files used to 
+//animate the player 
+//
 var player = new Player()
 function definePlayer(){
 player.imageRunRight.src = "Sprites/01-King Human/Run_Right.png"
@@ -425,7 +441,9 @@ player.imageHurtLeft.src = "Sprites/01-King Human/Hurt_Left.png"
 player.imageHearts.src = "Sprites/12-Live and Coins/Health_Animation.png"
 player.imageHeartsBorder.src = "Sprites/12-Live and Coins/Live Bar.png"
 }
+//
 //defines the images after the enemies are created
+//
 function defineEnemies(){
 currentObject = 0
 while(enemies.length > currentObject){
@@ -438,7 +456,14 @@ enemies[currentObject].imageHurtLeft.src = "Sprites/03-Pig/Hurt_Left.png"
 currentObject++
 }
 }
-
+//
+//defines the sources for thkjiujkujuike images used for the door
+//
+var door = new Door(100,100)
+function defineDoor(){
+    door.imageIdle.src = "Sprites/11-Door/Idle.png"
+    door.imageOpening.src = "Sprites/11-Door/Opening (46x56).png"
+}
 /***********************************************************************
 Function nane
 Purpose
@@ -489,6 +514,34 @@ function animate(){
         controlsAnimation = 0
     }
 //
+//timer for door animation
+//
+    if(door.opening){
+        door.openingFrame++ 
+        if(door.openingFrame > 3){
+            if(currentLevel == 1){
+                inLevel = false
+                currentObject = 0
+                currentLevel = 2
+                player = new Player(300,100)
+                definePlayer()
+                while(currentObject < enemies.length){
+                enemies.splice(currentObject,1)
+                currentObject++
+                }
+                enemies.push(new Enemy(100,100,10))
+                defineEnemies()
+                platforms = []
+                platformsDrawn = false
+                door = new Door(700,100)
+                defineDoor()
+                inLevel = true
+                door.opening = false
+                door.openingFrame = 0   
+            }
+        }
+    }
+//
 //timers for enemy animations 
 //I use while statements so the timers apply for each enemy
 //
@@ -528,10 +581,15 @@ function animate(){
 //runs the levels (or scene whatever you want to call it)
 //
 function runScene(){
+//
+//clears the canvas allowing animations to look clean and not have after images 
+//
     ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
     ctx.fillStyle = "#3FFF51"
     ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
-    //draws the level
+//
+//draws the level
+//
     tileY = 0
     tilesDrawn = 0
     while(tileY < CANVASHEIGHT){
@@ -551,10 +609,13 @@ function runScene(){
         tileY += TILESIZE * SCALE
     }
     platformsDrawn = true
-//clears the canvas allowing animations to look clean and not have after images 
-        //ctx.fillStyle = "black"
-        //ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
+//
+//calls the door to be drawn
+//
+door.drawDoor()
+//
 //trigers all key pressed related things 
+//
         if (jumpKeyPressed & player.canJump){
             player.jump()
         }
@@ -574,7 +635,14 @@ function runScene(){
             &&(player.currentAnimation != "jump")
             &&(player.currentAnimation != "attacking")){
                 player.currentAnimation = "idle"
-            }   
+            } 
+//
+//checks for collision between door and player 
+//          
+            collision = boundingBox(door.x,door.y,door.width* SCALE,door.height * SCALE,player.x,player.y,player.width,player.height)
+            if(collision.side != ""){
+                door.opening = true
+            }
         currentObject = 0
         while(enemies.length > currentObject){
             enemies[currentObject].move()
@@ -723,8 +791,6 @@ function runScene(){
         player.fall()
         if(inLevel){
         requestAnimationFrame(runScene)
-        }else{
-            menus()
         }
     }
 
@@ -767,7 +833,6 @@ addEventListener("keyup", keyReleased)
     }
 currentScreen = "start"
     function menus(){
-        console.log(currentScreen)
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         switch(currentScreen){
             case"lvls":
@@ -813,7 +878,6 @@ addEventListener("mousedown", mouseClicked)
                         if(storySlide < 3){
                             storySlide++
                         }else{
-                            console.log(storySlide)
                             currentScreen = "instructions"
                             rightButtonX = 704
                             leftButtonX = 64
@@ -835,11 +899,18 @@ addEventListener("mousedown", mouseClicked)
                 if(collision){
                     player = new Player(96,448)
                     definePlayer()
+                    enemies.push(new Enemy(100,200,3))
+                    defineEnemies()
+                    door = new Door(124,272)
+                    defineDoor()
                     inLevel = true
                     runScene()
                 }else {
                     collision = mouseCollision(mouseX,mouseY,leftButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)                    
                     if(collision){
+                        rightButtonX = 640
+                        leftButtonX = 128
+                        buttonsYposition = CANVASHEIGHT-TILESIZE*SCALE
                         currentScreen = "story"
                         storySlide = 0
                     }
@@ -854,7 +925,6 @@ addEventListener("mousedown", mouseClicked)
         
         mouseX = mouseEvent.offsetX
         mouseY = mouseEvent.offsetY
-        console.log(mouseX,mouseY)
     }
 //
 //incase i ever need it
