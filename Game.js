@@ -1,3 +1,11 @@
+/**********
+Koen Mackenzie Erkens
+Kings Boxes
+A game where you are a king that had your boxes stolen
+so you need to go around avoid/defeat enemies and collect boxes
+Last updated 
+21/07/2023
+**********/
 window.onload=() => {
     var c = document.getElementById("canvas")
     var ctx = c.getContext("2d")
@@ -11,7 +19,6 @@ window.onload=() => {
 //
     const TILESIZE = 32
     var platformsDrawn = false
-    var countOfPlatforms = 0
     var inLevel = false
     var currentLevel = 1
     var tileX = 0
@@ -20,25 +27,31 @@ window.onload=() => {
     var tileSpriteLocation
     var tileSpriteLocationX
     var tileSpriteLocationY
+//
 //lets the player health carry on to the next level
+//
     var remainingHealth
 //
 //viarables&consts for menus
 //
     const STARTSCREEN = new Image()
     const STORYSCREEN = new Image()
-    const MENUSCREEN = new Image()
+    const DEATHSCREEN = new Image()
     const CONTROLSCREEN = new Image()
     const RIGHTBUTTON = new Image()
     const LEFTBUTTON = new Image()
+    const WINSCREEN = new Image()
     var buttonsYposition = CANVASHEIGHT-TILESIZE*SCALE
     var rightButtonX = 640
     var leftButtonX = 128
+    var deathAnimation = 0
     STARTSCREEN.src = "Levels/StartScreen.png"
     STORYSCREEN.src = "Levels/StoryLine.png"
     CONTROLSCREEN.src = "Levels/Controls_Animation.png"
     RIGHTBUTTON.src= "Sprites/Buttons&UI/Right_Button.png"
     LEFTBUTTON.src = "Sprites/Buttons&UI/Left_Button.png"
+    DEATHSCREEN.src = "Levels/Death.png"
+    WINSCREEN.src = "Levels/Win.png"
     var mouseX
     var mouseY
     var storySlide = 0
@@ -73,6 +86,24 @@ window.onload=() => {
     var currentObject = 0
     var secondObject = 0
     var collision = []
+//
+//variables for score (amount of boxes collected)
+//
+    var boxesCollected = 0
+    const BOXICON = new Image()
+    const BOXICONWIDTH = 21
+    const BOXICONHEIGHT = 16
+    const BOXICONX = 710
+    const BOXICONY = 80
+    BOXICON.src = "Sprites/08-Box/Box.png"
+
+//
+//didn't have enough time to create this idea but am leaving this in so i can work on it after the due date
+//
+    //const TENSCOLUMN = new Image()
+    //const ONESCOLUMN = new Image()
+    //TENSCOLUMN.src = "Sprites/12-Live and Coins/Numbers.png"
+    //ONESCOLUMN.src = "Sprites/12-Live and Coins/Numbers.png"
 
     class Player{
 //
@@ -308,6 +339,9 @@ window.onload=() => {
             this.x = x
             this.width = 19
             this.height = 17
+//
+//as the animations are square
+//
             this.attackSize = 28
             this.hurtSize = 18
             this.y = y
@@ -497,17 +531,7 @@ function defineDoor(){
     door.imageIdle.src = "Sprites/11-Door/Idle.png"
     door.imageOpening.src = "Sprites/11-Door/Opening (46x56).png"
 }
-/***********************************************************************
-Function nane
-Purpose
-Input parameters
-Outout
 
-//creates a new object
-//platforms =[new Platform(100, 550, 100, 260, false), new Platform(300, 500,100,26)]
-//changes the fps of the players animations
-
-***********************************************************************/
     setInterval(animate,100)
     function animate(){
 //
@@ -551,11 +575,21 @@ Outout
         }
 //
 //timer for the animation seen at the beggining of the game where you are shown the controls and
-//what they do
+//what they do 
 //
         controlsAnimation = controlsAnimation + 1
         if(controlsAnimation == 10){
             controlsAnimation = 0
+        }
+//
+//timer for death screen then goes switches back to control screen so the player can reattempt the game
+//      
+        if(currentScreen == "dead"){
+            deathAnimation++
+            if(deathAnimation > 9){
+                currentScreen = "instructions"
+                deathAnimation = 0
+            }
         }
 //
 //timer for door animation
@@ -577,6 +611,9 @@ Outout
                     defineEnemies()
                     door = new Door(96,400)
                     defineDoor()
+                    boxes.push(new Box(boxes.push(new Box(720,480))))
+                    boxes.push(new Box(boxes.push(new Box(264,544))))
+                    defineBoxes()
                 }else if(currentLevel == 2){
                     resetLevel()
                     currentLevel = 3
@@ -587,6 +624,9 @@ Outout
                     defineEnemies()
                     door = new Door(646,144)
                     defineDoor()
+                    boxes.push(new Box(boxes.push(new Box(200,544))))
+                    boxes.push(new Box(boxes.push(new Box(396,224))))
+                    defineBoxes()
                 }else if(currentLevel == 3){
                     resetLevel()
                     currentLevel = 4
@@ -597,15 +637,15 @@ Outout
                     defineEnemies()
                     door = new Door(96,80)
                     defineDoor()
+                    boxes.push(new Box(boxes.push(new Box(126,544))))
+                    boxes.push(new Box(boxes.push(new Box(66,544))))
+                    boxes.push(new Box(boxes.push(new Box(720,480))))
+                    boxes.push(new Box(boxes.push(new Box(532,352))))
+                    defineBoxes()
                 }else if(currentLevel == 4){
-                    resetLevel()
-                    currentLevel = 5
-                    player = new Player(96,300,remainingHealth)
-                    definePlayer()
-                    enemies.push(new Enemy(100,100,5))
-                    defineEnemies()
-                    door = new Door(96,80)
-                    defineDoor()
+                    inLevel = false
+                    currentScreen = "win"
+                    menus()
                 }
             }
         }
@@ -654,6 +694,7 @@ Outout
         door.opening = false
         door.openingFrame = 0
         remainingHealth = player.health
+        boxes = []
     }
 //
 //runs the levels (or scene whatever you want to call it)
@@ -667,6 +708,8 @@ Outout
         ctx.fillRect(0,0,CANVASWIDTH,CANVASHEIGHT)
 //
 //draws the level
+//uses two while statements to draw the scene in 64 by 64 squares from top left to bottom right
+//uses drawLevel function to find what tile to draw 
 //
         tileY = 0
         tilesDrawn = 0
@@ -676,6 +719,12 @@ Outout
                 tileSpriteLocation = drawLevel(currentLevel - 1,tilesDrawn)
                 tileSpriteLocationX = tileSpriteLocation.x
                 tileSpriteLocationY = tileSpriteLocation.y
+//
+//In the tilesheet all the walls are below a certian position so with this i can see if there a wall
+//or not and if the tile being drawn is not a background tile (i know this as its above the walls in tile sheet
+//or less then 6 in 64 by 64 tiles) and one of the platform wall things i create a platorm which the player can collide with
+//this allows me to easily create levels and have them drawing with the player colliding correctly
+//
                 if((tileSpriteLocation.y < 6)&&(platformsDrawn == false)){
                     platforms.push(new Platform (tileX,tileY,TILESIZE * SCALE,TILESIZE * SCALE))
                 }
@@ -688,9 +737,17 @@ Outout
         }
         platformsDrawn = true
 //
-//calls the door to be drawn
+//calls the door to be drawn 
 //
         door.drawDoor()
+//
+//calls the boxes to be drawn 
+//  
+        currentObject = 0
+        while(currentObject < boxes.length){
+            boxes[currentObject].drawBox()
+            currentObject++
+        }
 //
 //trigers all key pressed related things 
 //
@@ -717,10 +774,27 @@ Outout
 //
 //checks for collision between door and player 
 //this uses a function allowing me to use one bit of code for most of my collision
+//i use != "" this means that if it is true boundingBox will return something that isn't ""
+//so therefore by doing this i dont need to worry about what side the player is colliding with  
+//as i dont resolve the collision by moving the player and i just want to know if they're colliding
 //          
             collision = boundingBox(door.x,door.y,door.width* SCALE,door.height * SCALE,player.x,player.y,player.width,player.height)
             if(collision.side != ""){
                 door.opening = true
+            }
+//
+//checks for collision between boxes and player
+//uses the bounding box function and a while statement 
+//
+            currentObject = 0
+            while(currentObject < boxes.length){
+                collision = boundingBox(player.x,player.y,player.width,player.height,boxes[currentObject].x,
+                    boxes[currentObject].y, boxes[currentObject].width * SCALE, boxes[currentObject].height * SCALE)
+                if(collision.side != ""){
+                    boxes.splice(currentObject,1)
+                    boxesCollected += 1
+                }
+                currentObject++
             }
 //
 //checks for collision between the enemies and player
@@ -782,6 +856,10 @@ Outout
                         }
                 }else{
                     switch(player.lastFacing){
+//
+//checks the collision for the player attacking and as its a bigger hitbox i need to check it 
+//correctly so therefore i use whatever way the character is facing to get the right hitbox size
+//
                         case "right":
                             collision = boundingBox(player.x - 30, player.y - 32, player.animation.attack.frameWidth * SCALE,
                                 player.animation.attack.frameHeight * SCALE,
@@ -795,6 +873,9 @@ Outout
                                 enemies[currentObject].width * SCALE,enemies[currentObject].height)
                         break
                     }
+//
+//similar thing to with the door "" means that if there is a colliding side this will happend
+//
                     if(collision.side != ""){
                         if(enemies[currentObject].currentAnimation != "hurt"){
                             enemies[currentObject].currentAnimation = "hurt"
@@ -877,14 +958,35 @@ Outout
                 secondObject = 0
  
         }
+        if(player.health < 1){
+            inLevel = false
+            currentScreen = "dead"
+            menus()
+        }
+//
+//draws the amount of boxes collected
+//uses text as i was going to use images but due to lack of time this was the easy option...
+//
+        ctx.drawImage(BOXICON, 0,0,BOXICONWIDTH,BOXICONHEIGHT, BOXICONX, BOXICONY, BOXICONWIDTH * SCALE,BOXICONHEIGHT * SCALE)
+        ctx.fillStyle = "white"
+        ctx.font = "20px Monospace"
+        ctx.fillText(boxesCollected,725,104)
+//
+//calls the player animation which draws the hearts banner behind the hearts and the player
+//
         player.animate()
+//
+//makes the player fall (if its on a platform this allows its jump to reset)
+//
         player.fall()
         if(inLevel){
         requestAnimationFrame(runScene)
         }
     }
-
-//moves player left and right based off key pressed and stops them aswell
+//
+//sets variables to true and false letting the game 
+//move the player left and right smoothly based off key pressed and stops them aswell
+//
 addEventListener("keydown", keyPressed)
 
     function keyPressed(keyDown){
@@ -923,11 +1025,19 @@ addEventListener("keyup", keyReleased)
     }
 currentScreen = "start"
     function menus(){
+//
+//draws images based on what the currentScreen is
+//very similar to what ive done above in the runScene loop but i draw the images straight off
+//instead of calling something
+//
         ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT)
         switch(currentScreen){
-            case"lvls":
-            break
-            case"pause":
+            case"dead":
+//
+//reset the box count when the player died as otherwise you can get infinite boxes by just dying
+//
+                boxesCollected = 0
+                ctx.drawImage(DEATHSCREEN,CANVASWIDTH/SCALE * deathAnimation,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
             break
             case"start":
                 ctx.drawImage(STARTSCREEN,0,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
@@ -942,6 +1052,12 @@ currentScreen = "start"
                 ctx.drawImage(LEFTBUTTON,0,0,TILESIZE,TILESIZE,leftButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
                 ctx.drawImage(RIGHTBUTTON,0,0,TILESIZE,TILESIZE,rightButtonX,buttonsYposition,TILESIZE*SCALE,TILESIZE*SCALE)
             break
+            case"win":
+                ctx.drawImage(WINSCREEN,0,0,CANVASWIDTH/SCALE,CANVASHEIGHT/SCALE,0,0,CANVASWIDTH,CANVASHEIGHT)
+                ctx.fillStyle = "gold"
+                ctx.font = "100px Monospace"
+                ctx.fillText(boxesCollected,CANVASWIDTH/2 -25, 300)
+            break
         }
         if(inLevel == false){
             requestAnimationFrame(menus)
@@ -950,9 +1066,14 @@ currentScreen = "start"
 menus()
 
 addEventListener("mousedown", mouseClicked)
-
+//
+//checks for clicks and does different things depending on the outcome
+//
     function mouseClicked(mouseDown){
         var mouseClicked = mouseDown.button
+//
+//causes the player to attack
+//
         if(inLevel == true){
             if ((mouseClicked == 0)&&(player.currentAnimation != "attacking")&&(attackOnCooldown == false)){
                 attackButtonPressed = true
@@ -963,6 +1084,10 @@ addEventListener("mousedown", mouseClicked)
                     currentScreen = "story" 
                 break
                 case"story":
+//
+//if the mouse is within the givin boundries using mouseCollision function and if it is true 
+//changes the x position in STORYSCREEN so that it appears to be something like a slide show 
+//
                     collision = mouseCollision(mouseX,mouseY,rightButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)
                     if(collision){
                         if(storySlide < 3){
@@ -984,12 +1109,27 @@ addEventListener("mousedown", mouseClicked)
                         }
                     }
                 break
+                case"win":
+                currentLevel = 1
+                storySlide = 0
+                boxesCollected = 0
+                currentScreen = "start"
+                break
                 case"instructions":
                 collision = mouseCollision(mouseX,mouseY,rightButtonX,buttonsYposition,TILESIZE * SCALE,TILESIZE * SCALE)
                 if(collision){
+//
+//I reset the level as once you die this is the scene you are brought to and if i dont reset
+//the level there will be random objects around the place
+//
+                    resetLevel()
+                    currentLevel = 1
                     player = new Player(96,448,6)
                     definePlayer()
                     door = new Door(124,272)
+                    boxes.push(new Box(716,480))
+                    boxes.push(new Box(416,352))
+                    defineBoxes()
                     defineDoor()
                     inLevel = true
                     runScene()
@@ -1007,6 +1147,10 @@ addEventListener("mousedown", mouseClicked)
             }
         }
     }
+//
+//use this to get the mouse x and y position so i can use it in collision which controls the 
+//menus
+//
     window.addEventListener('mousemove', mouseMoved)
 
     function mouseMoved(mouseEvent){
@@ -1014,17 +1158,4 @@ addEventListener("mousedown", mouseClicked)
         mouseX = mouseEvent.offsetX
         mouseY = mouseEvent.offsetY
     }
-//
-//incase i ever need it
-//
-/*
-addEventListener("mouseup", mouseReleased)
-
-    function mouseReleased(mouseUp){
-        var mouseReleased = mouseUp.button
-        if (mouseReleased == 0){
-            attackButtonPressed = false
-        }
-    }
-    */
 }
